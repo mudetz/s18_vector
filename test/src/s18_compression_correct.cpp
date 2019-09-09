@@ -29,6 +29,7 @@
 
 sdsl::int_vector<> gap_vector_gen(size_t, size_t, bool);
 sdsl::bit_vector gap_to_bv(sdsl::int_vector<>);
+sdsl::int_vector<> bv_to_rank(sdsl::bit_vector, uint32_t);
 size_t auto_shift(uint32_t, size_t, size_t, size_t);
 
 static size_t const case_packed_numbers[17] = {28,14, 9, 7, 4, 3, 2,28,14, 9, 7, 4, 3, 2, 5, 1, 5};
@@ -66,6 +67,8 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 			sdsl::int_vector<> gv = gap_vector_gen(bits, chunks, preceding_ones);
 			sdsl::int_vector<> av(gv.size(), 0); std::partial_sum(gv.begin(), gv.end(), av.begin());
 			sdsl::bit_vector bv = gap_to_bv(gv);
+			sdsl::int_vector<> rv1 = bv_to_rank(bv, 1);
+			sdsl::int_vector<> rv0 = bv_to_rank(bv, 0);
 
 			WHEN("It is compressed")
 			{
@@ -124,20 +127,33 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				}
 				AND_THEN("It is decompressed correctly (using access support)")
 				{
-					sdsl::access_support_s18<B> acc(s18);
+					sdsl::access_support_s18<B> as(s18);
 					for (size_t i = 0; i < bv.size(); i++)
-						REQUIRE(bv[i] == acc(i));
+						REQUIRE(bv[i] == as(i));
+				}
+				AND_THEN("It is decompressed correctly (using rank1)")
+				{
+					sdsl::rank_support_s18<1, B> rs(s18);
+					for (size_t i = 0; i < bv.size(); i++)
+						REQUIRE(rs(i) == rv1[i]);
+				}
+				AND_THEN("It is decompressed correctly (using rank0)")
+				{
+					sdsl::rank_support_s18<0, B> rs(s18);
+					for (size_t i = 0; i < bv.size(); i++)
+						REQUIRE(rs(i) == rv0[i]);
 				}
 #if 0
-				AND_THEN("It is decompressed correctly (using rank)")
+				AND_THEN("It is decompressed correctly (using rank support)")
 				{
+					sdsl::rank_support_s18<B> rs(s18);
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(rs(i) == rv[i]);
 				}
 				AND_THEN("It is decompressed correctly (using select)")
+				for (size_t i = 0; i < av.size(); i++)
+				REQUIRE(ss(i) == av[i]);
 				{
-					for (size_t i = 0; i < av.size(); i++)
-						REQUIRE(ss(i) == av[i]);
 				}
 #endif
 			}
@@ -199,4 +215,17 @@ size_t auto_shift(uint32_t word, size_t chunk_size, size_t chunk_position, size_
 	word &= mask << bitshift;
 	word >>= bitshift;
 	return word;
+}
+
+sdsl::int_vector<> bv_to_rank(sdsl::bit_vector bv, uint32_t bit)
+{
+	sdsl::int_vector<> ranks(bv.size(), 0);
+
+	size_t seen_ones = 0;
+	for (size_t i = 0; i < bv.size(); i++) {
+		ranks[i] = seen_ones;
+		if (bv[i] == bit) seen_ones++;
+	}
+
+	return ranks;
 }
