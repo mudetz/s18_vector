@@ -31,10 +31,10 @@ sdsl::int_vector<> gap_vector_gen(size_t, size_t, bool);
 sdsl::bit_vector gap_to_bv(sdsl::int_vector<>);
 size_t auto_shift(uint32_t, size_t, size_t, size_t);
 
-static size_t const case_packed_numbers[18] = {28,14, 9, 7, 4, 3, 2,28,14, 9, 7, 4, 3, 2, 5, 1, 5, 1};
-static size_t const case_number_chunks[18]  = { 1, 2, 3, 4, 7, 9,14, 1, 2, 3, 4, 7, 9,14, 5,28, 5, 1};
-static bool   const case_preceding_ones[18] = { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0};
-static uint32_t const cases[18] = {
+static size_t const case_packed_numbers[17] = {28,14, 9, 7, 4, 3, 2,28,14, 9, 7, 4, 3, 2, 5, 1, 5};
+static size_t const case_number_chunks[17]  = { 1, 2, 3, 4, 7, 9,14, 1, 2, 3, 4, 7, 9,14, 5,28, 5};
+static bool   const case_preceding_ones[17] = { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0};
+static uint32_t const cases[17] = {
 	0x00000000,  // C1
 	0x10000000,  // C2
 	0x20000000,  // C3
@@ -50,12 +50,9 @@ static uint32_t const cases[18] = {
 	0xC0000000,  // C13
 	0xD0000000,  // C14
 	0xE0000000,  // C15
-	0xF8000000,  // C16
-	0xF0000000,  // C17
-	0xF4000000   // C18
+	0xF0000000,  // C16
+	0xF8000000,  // C17
 };
-
-static std::vector<size_t> const block_sizes = {8,16,32,64,128,256,512};
 
 TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((uint16_t B), B), (64), (128), (256), (512), (1024))
 {
@@ -85,7 +82,7 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 					} else if (C == 15) {/* Case 16 */
 						REQUIRE((s18.debug__s18_seq()[0] & 0xF8000000) == cases[C]);
 					} else if (C == 16) {/* Case 17 */
-						REQUIRE((s18.debug__s18_seq()[0] & 0xF0000000) == cases[C]);
+						REQUIRE((s18.debug__s18_seq()[0] & 0xF8000000) == cases[C]);
 					}
 
 					/* Check encoding body */
@@ -105,6 +102,15 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				AND_THEN("Size is correct")
 				{
 					REQUIRE(bv.size() == s18.size());
+				}
+				AND_THEN("Word size is correct")
+				{
+					REQUIRE(sdsl::s18_word(s18.debug__s18_seq()[0]).size() == gv.size());
+				}
+				AND_THEN ("Gaps are decoded correctly")
+				{
+					for (size_t i = 0; i < sdsl::s18_word(s18.debug__s18_seq()[0]).size(); i++)
+						REQUIRE(gv[i] == s18.debug__first_word_nth_gap(i));
 				}
 #if 0
 				AND_THEN("It is decompressed correctly (using access)")
