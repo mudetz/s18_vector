@@ -19,7 +19,7 @@ namespace sdsl
  */
 
 /* Access */
-template<uint8_t q = 1, uint16_t b_s = 256, typename vector_type = int_vector<32>>
+template<uint16_t b_s = 256, typename vector_type = int_vector<32>>
 class access_support_s18;
 
 /* Rank */
@@ -220,8 +220,7 @@ template<uint16_t b_s, typename vector_type>
 class s18_vector
 {
 	public:
-		friend class access_support_s18<0, b_s>;
-		friend class access_support_s18<1, b_s>;
+		friend class access_support_s18<b_s>;
 		friend class rank_support_s18<0, b_s>;
 		friend class rank_support_s18<1, b_s>;
 		friend class select_support_s18<0, b_s>;
@@ -370,6 +369,21 @@ class s18_vector
 		int_vector<32> const &debug__s18_seq(void) const { return s18_seq; }
 		uint32_t debug__first_word_nth_gap(size_t n) const { return s18_word(*s18_seq.begin())[n]; }
 #endif
+};
+
+
+template<uint16_t b_s, typename vector_type>
+class access_support_s18
+{
+	private:
+		s18_vector<b_s, vector_type> const &bv;
+	public:
+		access_support_s18(void)=delete;
+		access_support_s18(s18_vector<b_s, vector_type> &cv)
+			: bv(cv)
+		{}
+		uint32_t operator()(size_t const key) const { return bv[key]; }
+
 };
 
 }

@@ -122,6 +122,12 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(bv[i] == s18[i]);
 				}
+				AND_THEN("It is decompressed correctly (using access support)")
+				{
+					sdsl::access_support_s18<B> acc(s18);
+					for (size_t i = 0; i < bv.size(); i++)
+						REQUIRE(bv[i] == acc(i));
+				}
 #if 0
 				AND_THEN("It is decompressed correctly (using rank)")
 				{
