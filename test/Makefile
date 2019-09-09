@@ -32,6 +32,8 @@ OBJECTS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
 CXX ?= /usr/bin/g++
 CPPFLAGS = $(addprefix -I, $(HEADDIR)) -isystem../sdsl/build/include -I../s18/head -MMD -MP
 CFLAGS = -O0 -g -std=gnu++11 -Wall -Weffc++ -Wextra \
+	#-fno-omit-frame-pointer -fsanitize=pointer-compare -fsanitize=address \
+	-fsanitize=undefined -fsanitize=pointer-subtract
 	# -Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion \
 	-Wdisabled-optimization -Wfloat-equal -Wformat -Wformat=2 \
 	-Wformat-nonliteral -Wformat-security -Wformat-y2k -Wimport \
@@ -46,8 +48,6 @@ CFLAGS = -O0 -g -std=gnu++11 -Wall -Weffc++ -Wextra \
 	-Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
 	-Wvariadic-macros -Wvolatile-register-var -Wwrite-strings \
 	-mtune=native \
-	-fno-omit-frame-pointer -fsanitize=pointer-compare -fsanitize=address \
-	-fsanitize=undefined -fsanitize=pointer-subtract
 	#-Waggregate-return -Winline
 LDFLAGS = -L../sdsl/build/lib
 LDLIBS = -lsdsl -ldivsufsort -ldivsufsort64

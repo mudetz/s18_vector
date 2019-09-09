@@ -232,7 +232,7 @@ class s18_vector
 		size_t         s18_seq_size;  // Count of S18 words
 		int_vector<32> s18_seq;       // Vector of S18 words
 		vector_type    idx_words;     // Block leading words
-		vector_type    idx_bits;   // Total bits before block
+		vector_type    idx_bits;      // Total bits before block
 
 		typedef typename vector_type::iterator       iterator_type;
 		typedef typename vector_type::const_iterator const_iterator_type;
@@ -281,22 +281,19 @@ class s18_vector
 			gaps[0] = absp[0] + 1;
 
 			/* Fill indexes */
-			for (size_t i = 1; i < idx_bits.size(); i++)
-				idx_bits[i] = absp[b_s * i - 1] + 1;
-			idx_bits[0] = 0;
+			for (size_t i = 0; i < idx_bits.size(); i++)
+				idx_bits[i] = absp[std::min(absp.size() - 1, b_s * (i + 1))] + 1;
 
 			/* Encode blocks into multiple S18 words each */
 			for (size_t i = 0; i < blks; i++) {
+				idx_words[i] = (uint32_t)s18_seq_size;
 				auto from = gaps.begin() + (i * b_s);
 				auto to = std::min(gaps.begin() + ((i + 1) * b_s), gaps.end());
 				pack_block(from, to);
-				idx_words[i] = (uint32_t)s18_seq_size;
 			}
 
 			/* Get rid of extra unused space */
 			s18_seq.resize(s18_seq_size);
-			util::bit_compress(idx_words);
-			util::bit_compress(idx_bits);
 		} /* end s18_vector::s18_vector */
 
 		size_t size(void)
@@ -313,6 +310,19 @@ class s18_vector
 			);
 		}
 
+		uint32_t operator[](size_t const key) const
+		{
+			auto block_to_unpack = std::lower_bound(idx_bits.begin(), idx_bits.end(), key);
+			size_t position_in_idx_for_unpack = std::distance(idx_bits.begin(), block_to_unpack);
+
+			size_t start = idx_words[position_in_idx_for_unpack];
+
+			return find_block_nth(
+				s18_seq.begin() + start,
+				s18_seq.end(),
+				(uint32_t)key - (position_in_idx_for_unpack ? *(block_to_unpack - 1) : 0)
+			);
+		}
 	private:
 		uint32_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
 		{

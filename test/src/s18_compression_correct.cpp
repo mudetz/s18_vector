@@ -117,12 +117,12 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(bv[i] == s18.slow_access(i));
 				}
-#if 0
-				AND_THEN("It is decompressed correctly (using [slow] access)")
+				AND_THEN("It is decompressed correctly (using [indexed] access)")
 				{
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(bv[i] == s18[i]);
 				}
+#if 0
 				AND_THEN("It is decompressed correctly (using rank)")
 				{
 					for (size_t i = 0; i < bv.size(); i++)
