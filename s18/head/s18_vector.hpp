@@ -448,7 +448,7 @@ class rank_support_s18
 				}
 			}
 
-			throw std::runtime_error("s18_vector::find_block_nth: key not found within block range");
+			throw std::runtime_error("rank_support_s18::find_block_nth: key not found within block range");
 		}
 	public:
 		rank_support_s18(void)=delete;
@@ -458,6 +458,61 @@ class rank_support_s18
 		size_t operator()(size_t const key) const
 		{
 			return q ? rank1(key) : rank0(key);
+		}
+};
+
+template<uint8_t q, uint16_t b_s, typename vector_type>
+class select_support_s18
+{
+	static_assert(q < 2, "select_support_s18: bit pattern must be `0` or `1`");
+	private:
+		s18_vector<b_s, vector_type> const &bv;
+
+		typedef typename vector_type::iterator       iterator_type;
+		typedef typename vector_type::const_iterator const_iterator_type;
+
+	private:
+		size_t select0(size_t const key) const
+		{
+			return key;
+		}
+
+		size_t select1(size_t const key) const
+		{
+			size_t position_in_idx_for_unpack = key / b_s;
+			size_t start = bv.idx_words[position_in_idx_for_unpack];
+
+			return (position_in_idx_for_unpack > 0 ? bv.idx_bits[position_in_idx_for_unpack - 1] : 0) + partial_sum(
+				bv.s18_seq.begin() + start,
+				bv.s18_seq.end(),
+				(uint32_t)key % b_s + 1
+			);
+		}
+
+		size_t partial_sum(const_iterator_type const begin, const_iterator_type const end, uint32_t counter) const
+		{
+			const_iterator_type gaps = begin;
+			size_t accum = 0;
+
+			for (; std::distance(gaps, end) > 0 and counter; gaps++) {
+				s18_word word = s18_word(*gaps);
+				size_t len = word.size();
+
+				for (size_t i = 0; i < len and counter; i++, counter--)
+					accum += word[i];
+			}
+
+			if (counter) throw std::runtime_error("select_support_s18::partial_sum: vector consumed before target counter");
+			return accum;
+		}
+	public:
+		select_support_s18(void)=delete;
+		select_support_s18(s18_vector<b_s, vector_type> &cv)
+			: bv(cv)
+		{}
+		size_t operator()(size_t const key) const
+		{
+			return q ? select1(key) : select0(key);
 		}
 };
 

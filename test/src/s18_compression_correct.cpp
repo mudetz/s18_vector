@@ -143,19 +143,12 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(rs(i) == rv0[i]);
 				}
-#if 0
-				AND_THEN("It is decompressed correctly (using rank support)")
+				AND_THEN("It is decompressed correctly (using select1)")
 				{
-					sdsl::rank_support_s18<B> rs(s18);
-					for (size_t i = 0; i < bv.size(); i++)
-						REQUIRE(rs(i) == rv[i]);
+					sdsl::select_support_s18<1, B> ss(s18);
+					for (size_t i = 0; i < av.size(); i++)
+						REQUIRE(ss(i) == av[i]);
 				}
-				AND_THEN("It is decompressed correctly (using select)")
-				for (size_t i = 0; i < av.size(); i++)
-				REQUIRE(ss(i) == av[i]);
-				{
-				}
-#endif
 			}
 		}
 }
