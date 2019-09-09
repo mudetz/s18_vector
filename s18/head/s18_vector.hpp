@@ -304,25 +304,12 @@ class s18_vector
 			return m_size;
 		}
 
-		uint32_t operator[](size_t const key) const
+		uint32_t slow_access(size_t const key) const
 		{
-#if 0
-			auto block_to_unpack = std::lower_bound(idx_bits.begin(), idx_bits.end(), key);
-			size_t position_in_idx_for_unpack = std::distance(idx_bits.begin(), block_to_unpack);
-
-			size_t start =  idx_words[position_in_idx_for_unpack];
-			size_t end =  idx_words[position_in_idx_for_unpack + 1];
-
-			return find_block_nth(
-				s18_seq.begin() + start,
-				s18_seq.begin() + end,
-				(uint32_t)key - *block_to_unpack
-			);
-#endif
 			return find_block_nth(
 				s18_seq.begin(),
 				s18_seq.end(),
-				(uint32_t)key + 1
+				(uint32_t)key
 			);
 		}
 
@@ -330,7 +317,7 @@ class s18_vector
 		uint32_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
 		{
 			const_iterator_type gaps = begin;
-			uint32_t accum = 0;
+			uint32_t accum = -1;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				s18_word word = s18_word(*gaps);

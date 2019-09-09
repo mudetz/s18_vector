@@ -112,8 +112,13 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 					for (size_t i = 0; i < sdsl::s18_word(s18.debug__s18_seq()[0]).size(); i++)
 						REQUIRE(gv[i] == s18.debug__first_word_nth_gap(i));
 				}
+				AND_THEN("It is decompressed correctly (using [slow] access)")
+				{
+					for (size_t i = 0; i < bv.size(); i++)
+						REQUIRE(bv[i] == s18.slow_access(i));
+				}
 #if 0
-				AND_THEN("It is decompressed correctly (using access)")
+				AND_THEN("It is decompressed correctly (using [slow] access)")
 				{
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(bv[i] == s18[i]);
