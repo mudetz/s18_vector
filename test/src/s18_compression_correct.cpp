@@ -34,17 +34,37 @@ size_t auto_shift(uint32_t, size_t, size_t, size_t);
 static size_t const case_packed_numbers[18] = {28,14, 9, 7, 4, 3, 2,28,14, 9, 7, 4, 3, 2, 5, 1, 5, 1};
 static size_t const case_number_chunks[18]  = { 1, 2, 3, 4, 7, 9,14, 1, 2, 3, 4, 7, 9,14, 5,28, 5, 1};
 static bool   const case_preceding_ones[18] = { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0};
+static uint32_t const cases[18] = {
+	0x00000000,  // C1
+	0x10000000,  // C2
+	0x20000000,  // C3
+	0x30000000,  // C4
+	0x40000000,  // C5
+	0x50000000,  // C6
+	0x60000000,  // C7
+	0x70000000,  // C8
+	0x80000000,  // C9
+	0x90000000,  // C10
+	0xA0000000,  // C11
+	0xB0000000,  // C12
+	0xC0000000,  // C13
+	0xD0000000,  // C14
+	0xE0000000,  // C15
+	0xF8000000,  // C16
+	0xF0000000,  // C17
+	0xF4000000   // C18
+};
 
 static std::vector<size_t> const block_sizes = {8,16,32,64,128,256,512};
 
 TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((uint16_t B), B), (64), (128), (256), (512), (1024))
 {
-	for (size_t i = 0; i < 7; i++)
-		DYNAMIC_SECTION("Compression is correct for case" << std::to_string(i + 1))
+	for (size_t C = 0; C < 17; C++)
+		DYNAMIC_SECTION("Compression is correct for C" << std::to_string(C + 1))
 		{
-			size_t const bits = case_packed_numbers[i];
-			size_t const chunks  = case_number_chunks[i];
-			bool   const preceding_ones = case_preceding_ones[i];
+			size_t const bits = case_packed_numbers[C];
+			size_t const chunks  = case_number_chunks[C];
+			bool   const preceding_ones = case_preceding_ones[C];
 
 			sdsl::int_vector<> gv = gap_vector_gen(bits, chunks, preceding_ones);
 			sdsl::int_vector<> av(gv.size(), 0); std::partial_sum(gv.begin(), gv.end(), av.begin());
@@ -55,11 +75,32 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				sdsl::s18_vector<B> s18(bv);
 				THEN ("It is correctly encoded in a S18 word")
 				{
-					REQUIRE(s18.debug__s18_seq().size() == (gv.size() / B) + (gv.size() % B ? 1 : 0));
-					REQUIRE((s18.debug__s18_seq()[0] & 0xF0000000) == 0x00000000);
 
-					for (size_t i = 0; i < chunks; i++)
-						REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i]);
+					/* Check encoding size */
+					REQUIRE(s18.debug__s18_seq().size() == 1);
+
+					/* Check encoding header */
+					if (0 <= C and C <= 14) { /* Cases 1-15 */
+						REQUIRE((s18.debug__s18_seq()[0] & 0xF0000000) == cases[C]);
+					} else if (C == 15) {/* Case 16 */
+						REQUIRE((s18.debug__s18_seq()[0] & 0xF8000000) == cases[C]);
+					} else if (C == 16) {/* Case 17 */
+						REQUIRE((s18.debug__s18_seq()[0] & 0xF0000000) == cases[C]);
+					}
+
+					/* Check encoding body */
+					if (0 <= C and C <= 6) { /* Cases 1-7 */
+						for (size_t i = 0; i < chunks; i++)
+							REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i]);
+					} else if (7 <= C and C <= 14) {/* Cases 8-15 */
+						for (size_t i = 0; i < chunks; i++)
+							REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i + 28]);
+					} else if (C == 15) { /* Case 16 */
+						REQUIRE((s18.debug__s18_seq()[0] & ~0xF8000000) == gv.size());
+					} else if (C == 16) {/* Case 17 */
+						for (size_t i = 0; i < chunks; i++)
+							REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i]);
+					}
 				}
 				AND_THEN("Size is correct")
 				{

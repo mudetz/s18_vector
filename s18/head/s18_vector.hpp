@@ -163,16 +163,18 @@ class s18_word
 		bool add_if_enough_space(uint32_t gap)
 		{
 			assert(not already_packed);
+			processing_lead_1s = processing_lead_1s and gap == 1;
 
-			if (processing_lead_1s and gap == 1) {
+			if (processing_lead_1s) {
 				leading_1s += 1;
-			} else if (processing_lead_1s and gap != 1 and BIT_PAD[bits::hi(gap) + 1] * (leading_1s + 1) > 28) {
-				processing_lead_1s = false;
-				return false;
-			} else if (processing_lead_1s and gap != 1 and BIT_PAD[bits::hi(gap) + 1] * (leading_1s + 1) < 28) {
-				while (leading_1s--) pending_gaps.push_back(1);
+				return true;
 			}
-			processing_lead_1s = false;
+
+			if (leading_1s < 28) while (leading_1s) {
+				pending_gaps.push_back(1);
+				leading_1s--;
+			}
+			else if (leading_1s > 28) return false;
 
 			size_t new_pending_size = pending_gaps.size() + 1;
 			size_t gap_size = BIT_PAD[bits::hi(gap) + 1];
@@ -198,7 +200,6 @@ class s18_word
 				value <<= chunk_size;
 				value |= gap;
 			}
-			value <<= (28 - chunk_size * pending_gaps.size());
 			pending_gaps.clear();
 
 			switch (chunk_size) {
@@ -209,7 +210,7 @@ class s18_word
 				case  4: value |= !leading_1s ? CASE05 : CASE12; break;
 				case  3: value |= !leading_1s ? CASE06 : CASE13; break;
 				case  2: value |= !leading_1s ? CASE07 : CASE14; break;
-				case  5: value |= !leading_1s ? CASE15 : CASE17; break;
+				case  5: value |=  leading_1s ? CASE15 : CASE17; break;
 				case  1: value |= CASE16;                        break;
 				default: throw std::invalid_argument("s18_word::pack: Invalid chunk size");
 			}
