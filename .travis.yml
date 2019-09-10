@@ -20,6 +20,15 @@ install:
     - cd ${TRAVIS_BUILD_DIR}/sdsl/src
     - ./install.sh ${TRAVIS_BUILD_DIR}/sdsl/build
 
+    - git clone --depth=1 https://github.com/google/benchmark.git ${TRAVIS_BUILD_DIR}/benchmark
+    - git clone --depth=1 https://github.com/google/googletest.git ${TRAVIS_BUILD_DIR}/benchmark/googletest
+    - cd ${TRAVIS_BUILD_DIR}/benchmark
+    - mkdir build/
+    - cd build/
+    - cmake -DCMAKE_BUILD_TYPE=Release ../
+    - make -j8
+    - make test
+
 before_script:
     - $CXX --version
 
@@ -30,6 +39,12 @@ jobs:
               - cd ${TRAVIS_BUILD_DIR}/test
               - make
               - ./build/test-suite --reporter compact
+
+        - stage: perftest
+          script:
+              - cd ${TRAVIS_BUILD_DIR}/perf
+              - make
+              - sudo bash run_tests.sh
 
 stages:
     - compile
