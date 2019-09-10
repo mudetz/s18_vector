@@ -36,6 +36,8 @@
 # SDSL
 sdsl/
 
+# S9
+s9/
 
 # Google benchmark
 benchmark/

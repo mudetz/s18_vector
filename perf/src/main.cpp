@@ -4,6 +4,7 @@
 #include <sdsl/sd_vector.hpp>
 #include <sdsl/util.hpp>
 #include "s18_vector.hpp"
+#include "s9_vector.hpp"
 
 #define SIZE 1000000
 
@@ -32,6 +33,35 @@ static void BM_access_bv(benchmark::State& state) {
 	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_access_bv, sdsl::bit_vector)->DenseRange(0,2,1);
+
+template <class S9V>
+static void BM_access_s9(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	S9V s9(bv);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		s9[idx(g)];
+
+	benchmark::DoNotOptimize(s9.get_seq());
+	benchmark::ClobberMemory();
+}
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<8>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<16>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<32>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<64>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<128>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<256>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<512>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<1024>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<2048>)->DenseRange(0,2,1);
 
 template <class S18V>
 static void BM_access_s18(benchmark::State& state) {
@@ -135,6 +165,36 @@ static void BM_rank_bv(benchmark::State& state) {
 BENCHMARK_TEMPLATE(BM_rank_bv, sdsl::bit_vector, sdsl::rank_support_v<1>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_bv, sdsl::bit_vector, sdsl::rank_support_v5<1>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_bv, sdsl::bit_vector, sdsl::rank_support_scan<1>)->DenseRange(0,2,1);
+
+template <class S9V, class RS>
+static void BM_rank_s9(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	S9V s9(bv);
+	RS rs(&s9);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		rs(idx(g));
+
+	benchmark::DoNotOptimize(s9.get_seq());
+	benchmark::ClobberMemory();
+}
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<32>, sdsl::rank_support_s9<1,32>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<1024>, sdsl::rank_support_s9<1,1024>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<2048>, sdsl::rank_support_s9<1,2048>)->DenseRange(0,2,1);
 
 template <class S18V, class RS>
 static void BM_rank_s18(benchmark::State& state) {
@@ -245,6 +305,36 @@ static void BM_select_bv(benchmark::State& state) {
 BENCHMARK_TEMPLATE(BM_select_bv, sdsl::bit_vector, sdsl::select_support_mcl<1>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_bv, sdsl::bit_vector, sdsl::select_support_scan<1>)->DenseRange(0,2,1);
 
+template <class S9V, class SS>
+static void BM_select_s9(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+	int MAX = (int)sdsl::util::cnt_one_bits(bv);
+
+	S9V s9(bv);
+	SS ss(&s9);
+	std::uniform_int_distribution<int> idx(1, MAX);
+	for (auto _ : state)
+		ss(idx(g));
+
+	benchmark::DoNotOptimize(s9.get_seq());
+	benchmark::ClobberMemory();
+}
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<8>, sdsl::select_support_s9<1,8>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<16>, sdsl::select_support_s9<1,16>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<32>, sdsl::select_support_s9<1,32>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<64>, sdsl::select_support_s9<1,64>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<128>, sdsl::select_support_s9<1,128>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<256>, sdsl::select_support_s9<1,256>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<512>, sdsl::select_support_s9<1,512>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<1024>, sdsl::select_support_s9<1,1024>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<2048>, sdsl::select_support_s9<1,2048>)->DenseRange(0,2,1);
 
 template <class S18V, class SS>
 static void BM_select_s18(benchmark::State& state) {

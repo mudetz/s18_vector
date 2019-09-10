@@ -29,6 +29,8 @@ install:
     - make -j8
     - make test
 
+    - git clone --depth=1 https://github.com/nixaraven/s9_vector ${TRAVIS_BUILD_DIR}/s9
+
 before_script:
     - $CXX --version
 
