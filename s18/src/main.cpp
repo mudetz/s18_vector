@@ -19,7 +19,7 @@
 #include <sdsl/int_vector.hpp>
 #include <sdsl/rrr_vector.hpp>
 #include <sdsl/sd_vector.hpp>
-#include "s18_vector_v2.hpp"
+#include "s18_vector.hpp"
 
 #define SIZE 10000
 #define SIZE_PLOT 30
@@ -38,10 +38,9 @@ int main(void)
 		i += d(g) + 1;
 	}
 
-
 	sdsl::rrr_vector<63>  rrrb(b);
 	sdsl::sd_vector<>     sdb(b);
-	sdsl::s18_vector<64>  s1864(b);
+	sdsl::s18_vector<64>  s1864(bv);
 
 	return 0;
 }

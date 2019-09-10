@@ -18,6 +18,8 @@
 #define TEST_S18
 #endif
 
+#define RANDOM_ITERATIONS 100
+
 #include <algorithm>
 #include <numeric>
 #include <random>
@@ -54,6 +56,43 @@ static uint32_t const cases[17] = {
 	0xF0000000,  // C16
 	0xF8000000,  // C17
 };
+
+
+class Generator : public Catch::Generators::IGenerator<sdsl::bit_vector>
+{
+	private:
+		sdsl::bit_vector bv;
+		double x;
+	public:
+		Generator(size_t s, double _x)
+			: bv(s, 0)
+			, x(_x)
+		{
+			static_cast<void>(next());
+		}
+
+		sdsl::bit_vector const& get() const override
+		{
+			return bv;
+		}
+		bool next() override
+		{
+			for (size_t i = 0; i < bv.size(); i++)
+				bv[i] = 0;
+
+			std::random_device generator;
+			std::geometric_distribution<uint32_t> distribution(x);
+
+			size_t i = distribution(generator);
+			while (i < bv.size()) {
+				bv[i] = 1;
+				i += distribution(generator) + 1;
+			}
+
+			return true;
+		}
+};
+
 
 TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((uint16_t B), B), (64), (128), (256), (512), (1024))
 {
@@ -151,6 +190,184 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				}
 			}
 		}
+}
+
+
+TEMPLATE_TEST_CASE_SIG("100 sparse vectors are compressed correctly", "", ((uint16_t B), B), (8), (16), (32), (64), (128), (256), (512), (1024))
+{
+	GIVEN("A bit vector")
+	{
+		sdsl::bit_vector bv = GENERATE(take(RANDOM_ITERATIONS, GeneratorWrapper<sdsl::bit_vector>(std::unique_ptr<IGenerator<sdsl::bit_vector>>(new Generator(2000, .1)))));
+		sdsl::int_vector<> av(sdsl::util::cnt_one_bits(bv), 0);
+
+		for (size_t i = 0, j = 0; i < bv.size(); i++)
+			if (bv[i]) av[j++] = i + 1;
+
+		sdsl::int_vector<> gv(sdsl::util::cnt_one_bits(bv), 0);
+		for (size_t i = 1; i < gv.size(); i++)
+			gv[i] = av[i] - av[i - 1];
+		gv[0] = av[0] + 1;
+
+		sdsl::int_vector<> rv1 = bv_to_rank(bv, 1);
+		sdsl::int_vector<> rv0 = bv_to_rank(bv, 0);
+
+		WHEN("It is compressed")
+		{
+			sdsl::s18_vector<B> s18(bv);
+			THEN("Size is correct")
+			{
+				REQUIRE(bv.size() == s18.size());
+			}
+			AND_THEN("It is decompressed correctly (using [indexed] access)")
+			{
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(bv[i] == s18[i]);
+			}
+			AND_THEN("It is decompressed correctly (using access support)")
+			{
+				sdsl::access_support_s18<B> as(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(bv[i] == as(i));
+			}
+			AND_THEN("It is decompressed correctly (using rank1)")
+			{
+				sdsl::rank_support_s18<1, B> rs(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(rs(i) == rv1[i]);
+			}
+
+			AND_THEN("It is decompressed correctly (using rank0)")
+			{
+				sdsl::rank_support_s18<0, B> rs(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(rs(i) == rv0[i]);
+			}
+			AND_THEN("It is decompressed correctly (using select1)")
+			{
+				sdsl::select_support_s18<1, B> ss(s18);
+				for (size_t i = 0; i < av.size(); i++)
+					REQUIRE(ss(i) == av[i]);
+			}
+		}
+	}
+}
+
+TEMPLATE_TEST_CASE_SIG("100 normal vectors are compressed correctly", "", ((uint16_t B), B), (8), (16), (32), (64), (128), (256), (512), (1024))
+{
+	GIVEN("A bit vector")
+	{
+		sdsl::bit_vector bv = GENERATE(take(RANDOM_ITERATIONS, GeneratorWrapper<sdsl::bit_vector>(std::unique_ptr<IGenerator<sdsl::bit_vector>>(new Generator(2000, .5)))));
+		sdsl::int_vector<> av(sdsl::util::cnt_one_bits(bv), 0);
+
+		for (size_t i = 0, j = 0; i < bv.size(); i++)
+			if (bv[i]) av[j++] = i + 1;
+
+		sdsl::int_vector<> gv(sdsl::util::cnt_one_bits(bv), 0);
+		for (size_t i = 1; i < gv.size(); i++)
+			gv[i] = av[i] - av[i - 1];
+		gv[0] = av[0] + 1;
+
+		sdsl::int_vector<> rv1 = bv_to_rank(bv, 1);
+		sdsl::int_vector<> rv0 = bv_to_rank(bv, 0);
+
+		WHEN("It is compressed")
+		{
+			sdsl::s18_vector<B> s18(bv);
+			THEN("Size is correct")
+			{
+				REQUIRE(bv.size() == s18.size());
+			}
+			AND_THEN("It is decompressed correctly (using [indexed] access)")
+			{
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(bv[i] == s18[i]);
+			}
+			AND_THEN("It is decompressed correctly (using access support)")
+			{
+				sdsl::access_support_s18<B> as(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(bv[i] == as(i));
+			}
+			AND_THEN("It is decompressed correctly (using rank1)")
+			{
+				sdsl::rank_support_s18<1, B> rs(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(rs(i) == rv1[i]);
+			}
+
+			AND_THEN("It is decompressed correctly (using rank0)")
+			{
+				sdsl::rank_support_s18<0, B> rs(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(rs(i) == rv0[i]);
+			}
+			AND_THEN("It is decompressed correctly (using select1)")
+			{
+				sdsl::select_support_s18<1, B> ss(s18);
+				for (size_t i = 0; i < av.size(); i++)
+					REQUIRE(ss(i) == av[i]);
+			}
+		}
+	}
+}
+
+TEMPLATE_TEST_CASE_SIG("100 dense vectors are compressed correctly", "", ((uint16_t B), B), (8), (16), (32), (64), (128), (256), (512), (1024))
+{
+	GIVEN("A bit vector")
+	{
+		sdsl::bit_vector bv = GENERATE(take(RANDOM_ITERATIONS, GeneratorWrapper<sdsl::bit_vector>(std::unique_ptr<IGenerator<sdsl::bit_vector>>(new Generator(2000, .9)))));
+		sdsl::int_vector<> av(sdsl::util::cnt_one_bits(bv), 0);
+
+		for (size_t i = 0, j = 0; i < bv.size(); i++)
+			if (bv[i]) av[j++] = i + 1;
+
+		sdsl::int_vector<> gv(sdsl::util::cnt_one_bits(bv), 0);
+		for (size_t i = 1; i < gv.size(); i++)
+			gv[i] = av[i] - av[i - 1];
+		gv[0] = av[0] + 1;
+
+		sdsl::int_vector<> rv1 = bv_to_rank(bv, 1);
+		sdsl::int_vector<> rv0 = bv_to_rank(bv, 0);
+
+		WHEN("It is compressed")
+		{
+			sdsl::s18_vector<B> s18(bv);
+			THEN("Size is correct")
+			{
+				REQUIRE(bv.size() == s18.size());
+			}
+			AND_THEN("It is decompressed correctly (using [indexed] access)")
+			{
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(bv[i] == s18[i]);
+			}
+			AND_THEN("It is decompressed correctly (using access support)")
+			{
+				sdsl::access_support_s18<B> as(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(bv[i] == as(i));
+			}
+			AND_THEN("It is decompressed correctly (using rank1)")
+			{
+				sdsl::rank_support_s18<1, B> rs(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(rs(i) == rv1[i]);
+			}
+
+			AND_THEN("It is decompressed correctly (using rank0)")
+			{
+				sdsl::rank_support_s18<0, B> rs(s18);
+				for (size_t i = 0; i < bv.size(); i++)
+					REQUIRE(rs(i) == rv0[i]);
+			}
+			AND_THEN("It is decompressed correctly (using select1)")
+			{
+				sdsl::select_support_s18<1, B> ss(s18);
+				for (size_t i = 0; i < av.size(); i++)
+					REQUIRE(ss(i) == av[i]);
+			}
+		}
+	}
 }
 
 

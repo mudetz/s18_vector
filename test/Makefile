@@ -31,10 +31,8 @@ OBJECTS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
 # Compiler options
 CXX ?= /usr/bin/g++
 CPPFLAGS = $(addprefix -I, $(HEADDIR)) -isystem../sdsl/build/include -I../s18/head -MMD -MP
-CFLAGS = -O0 -g -std=gnu++11 -Wall -Weffc++ -Wextra \
-	#-fno-omit-frame-pointer -fsanitize=pointer-compare -fsanitize=address \
-	-fsanitize=undefined -fsanitize=pointer-subtract
-	# -Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion \
+CFLAGS = -O9 -std=gnu++11 -Wall -Weffc++ -Wextra \
+	-Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion \
 	-Wdisabled-optimization -Wfloat-equal -Wformat -Wformat=2 \
 	-Wformat-nonliteral -Wformat-security -Wformat-y2k -Wimport \
 	-Winit-self -Winvalid-pch -Wunsafe-loop-optimizations \
@@ -47,8 +45,7 @@ CFLAGS = -O0 -g -std=gnu++11 -Wall -Weffc++ -Wextra \
 	-Wunknown-pragmas -Wunreachable-code -Wunused -Wunused-function \
 	-Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
 	-Wvariadic-macros -Wvolatile-register-var -Wwrite-strings \
-	-mtune=native \
-	#-Waggregate-return -Winline
+	-mtune=native
 LDFLAGS = -L../sdsl/build/lib
 LDLIBS = -lsdsl -ldivsufsort -ldivsufsort64
 DEBUG = -g

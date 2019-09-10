@@ -66,6 +66,7 @@ class s18_word
 		std::vector<uint32_t> pending_gaps;
 
 		static size_t const BIT_PAD[33];
+		static size_t const BITS_TO_CHUNKS[29];
 	public:
 		uint32_t value;
 		size_t   chunk_size;
@@ -174,8 +175,8 @@ class s18_word
 			processing_lead_1s = processing_lead_1s and gap == 1;
 
 			if (processing_lead_1s) {
-				leading_1s += 1;
-				return true;
+				if (leading_1s < 0x07FFFFFF) leading_1s += 1;
+				return leading_1s < 0x07FFFFFF;
 			}
 
 			if (leading_1s < 28) while (leading_1s) {
@@ -201,13 +202,16 @@ class s18_word
 			already_packed = true;
 
 			/* Handler for C16 */
-			if (chunk_size == 1)
+			if (chunk_size == 1 and leading_1s)
 				return (value = CASE16 | leading_1s);
+			if (chunk_size == 1 and pending_gaps.size())
+				return (value = CASE16 | (uint32_t)pending_gaps.size());
 
 			for (uint32_t gap : pending_gaps) {
 				value <<= chunk_size;
 				value |= gap;
 			}
+			value <<= chunk_size * (BITS_TO_CHUNKS[chunk_size] - pending_gaps.size());
 			pending_gaps.clear();
 
 			switch (chunk_size) {
@@ -228,6 +232,8 @@ class s18_word
 };
 
 size_t const s18_word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
+size_t const s18_word::BITS_TO_CHUNKS[29] = { 0,28,14,9,7,5,0,4,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+
 
 /*
  * S18 Vector
@@ -297,7 +303,7 @@ class s18_vector
 
 			/* Fill indexes */
 			for (size_t i = 0; i < idx_bits.size(); i++)
-				idx_bits[i] = absp[std::min(absp.size() - 1, b_s * (i + 1))] + 1;
+				idx_bits[i] = b_s * (i + 1) < absp.size() ? absp[b_s * (i + 1) - 1] + 1 : (uint32_t)m_size;
 
 			/* Encode blocks into multiple S18 words each */
 			for (size_t i = 0; i < blks; i++) {
@@ -311,7 +317,7 @@ class s18_vector
 			s18_seq.resize(s18_seq_size);
 		} /* end s18_vector::s18_vector */
 
-		size_t size(void)
+		size_t size(void) const
 		{
 			return m_size;
 		}
@@ -349,13 +355,16 @@ class s18_vector
 				size_t len = word.size();
 
 				for (size_t i = 0; i < len; i++) {
+					uint32_t wi = word[i];
+					if (wi == 0) break; /* Word was not full */
+
 					accum += word[i];
 					if (accum == target_accum) return 1;
 					if (accum > target_accum) return 0;
 				}
 			}
 
-			throw std::runtime_error("s18_vector::find_block_nth: key not found within block range");
+			return 0;
 		}
 
 		inline void pack_block(const_iterator_type const begin, const_iterator_type const end)
@@ -443,12 +452,15 @@ class rank_support_s18
 				size_t len = word.size();
 
 				for (size_t i = 0; i < len; i++, one_cnt++) {
-					accum += word[i];
+					uint32_t wi = word[i];
+					if (wi == 0) break; /* Word was not full */
+
+					accum += wi;
 					if (accum >= target_accum) return one_cnt;
 				}
 			}
 
-			throw std::runtime_error("rank_support_s18::find_block_nth: key not found within block range");
+			return one_cnt;
 		}
 	public:
 		rank_support_s18(void)=delete;
@@ -498,8 +510,12 @@ class select_support_s18
 				s18_word word = s18_word(*gaps);
 				size_t len = word.size();
 
-				for (size_t i = 0; i < len and counter; i++, counter--)
-					accum += word[i];
+				for (size_t i = 0; i < len and counter; i++, counter--) {
+					uint32_t wi = word[i];
+					if (wi == 0) break; /* Word was not full */
+
+					accum += wi;
+				}
 			}
 
 			if (counter) throw std::runtime_error("select_support_s18::partial_sum: vector consumed before target counter");
