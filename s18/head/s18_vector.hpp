@@ -67,6 +67,9 @@ class s18_word
 
 		static size_t const BIT_PAD[33];
 		static size_t const BITS_TO_CHUNKS[29];
+		static size_t const DECODER_CHUNKS[17];
+		static size_t const DECODER_BITS[17];
+		static uint32_t const DECODER_MASK[17][14];
 	public:
 		uint32_t value;
 		size_t   chunk_size;
@@ -169,6 +172,41 @@ class s18_word
 			}
 		}
 
+		uint32_t access_fast(size_t key, size_t _case, bool special) const
+		{
+			if (_case == 15)
+				return key < (value & MASK_CASE16_CHUNK);
+			if (not special)
+				return (value & DECODER_MASK[_case][key]) >> (DECODER_BITS[_case] * (DECODER_CHUNKS[_case] - key - 1));
+			return key < 28 ? 1 : (value & DECODER_MASK[_case][key - 28]) >> (DECODER_BITS[_case] * (DECODER_CHUNKS[_case] - (key - 28) - 1));
+		}
+
+		size_t to_case(void) const
+		{
+			switch (value & MASK_HEADER4) {
+				case CASE01: return  0;
+				case CASE02: return  1;
+				case CASE03: return  2;
+				case CASE04: return  3;
+				case CASE05: return  4;
+				case CASE06: return  5;
+				case CASE07: return  6;
+				case CASE08: return  7;
+				case CASE09: return  8;
+				case CASE10: return  9;
+				case CASE11: return 10;
+				case CASE12: return 11;
+				case CASE13: return 12;
+				case CASE14: return 13;
+				case CASE15: return 14;
+				default: switch (value & MASK_HEADER5) {
+					case CASE16: return 15;
+					case CASE17: return 16;
+					default: throw std::invalid_argument("s18_word::to_case[]: Invalid case");
+				}
+			}
+		}
+
 		bool add_if_enough_space(uint32_t gap)
 		{
 			assert(not already_packed);
@@ -233,6 +271,27 @@ class s18_word
 
 size_t const s18_word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
 size_t const s18_word::BITS_TO_CHUNKS[29] = { 0,28,14,9,7,5,0,4,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+size_t const s18_word::DECODER_CHUNKS[17] = {1,2,3,4,7,9,14,1,2,3,4,7,9,14,5,0,5};
+size_t const s18_word::DECODER_BITS[17] = {28,14,9,7,4,3,2,28,14,9,7,4,3,2,5,0,5};
+uint32_t const s18_word::DECODER_MASK[17][14] = {
+	{MASK_CASE01_CHUNK >> (0 * BITS_CASE01)},
+	{MASK_CASE02_CHUNK >> (0 * BITS_CASE02), MASK_CASE02_CHUNK >> (1 * BITS_CASE02)},
+	{MASK_CASE03_CHUNK >> (0 * BITS_CASE03), MASK_CASE03_CHUNK >> (1 * BITS_CASE03), MASK_CASE03_CHUNK >> (2 * BITS_CASE03)},
+	{MASK_CASE04_CHUNK >> (0 * BITS_CASE04), MASK_CASE04_CHUNK >> (1 * BITS_CASE04), MASK_CASE04_CHUNK >> (2 * BITS_CASE04), MASK_CASE04_CHUNK >> (3 * BITS_CASE04)},
+	{MASK_CASE05_CHUNK >> (0 * BITS_CASE05), MASK_CASE05_CHUNK >> (1 * BITS_CASE05), MASK_CASE05_CHUNK >> (2 * BITS_CASE05), MASK_CASE05_CHUNK >> (3 * BITS_CASE05), MASK_CASE05_CHUNK >> (4 * BITS_CASE05), MASK_CASE05_CHUNK >> (5 * BITS_CASE05), MASK_CASE05_CHUNK >> (6 * BITS_CASE05)},
+	{MASK_CASE06_CHUNK >> (0 * BITS_CASE06), MASK_CASE06_CHUNK >> (1 * BITS_CASE06), MASK_CASE06_CHUNK >> (2 * BITS_CASE06), MASK_CASE06_CHUNK >> (3 * BITS_CASE06), MASK_CASE06_CHUNK >> (4 * BITS_CASE06), MASK_CASE06_CHUNK >> (5 * BITS_CASE06), MASK_CASE06_CHUNK >> (6 * BITS_CASE06), MASK_CASE06_CHUNK >> (7 * BITS_CASE06), MASK_CASE06_CHUNK >> (8 * BITS_CASE06)},
+	{MASK_CASE07_CHUNK >> ( 0 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 1 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 2 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 3 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 4 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 5 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 6 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 7 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 8 * BITS_CASE07), MASK_CASE07_CHUNK >> ( 9 * BITS_CASE07), MASK_CASE07_CHUNK >> (10 * BITS_CASE07), MASK_CASE07_CHUNK >> (11 * BITS_CASE07), MASK_CASE07_CHUNK >> (12 * BITS_CASE07), MASK_CASE07_CHUNK >> (13 * BITS_CASE07)},
+	{MASK_CASE08_CHUNK >> (0 * BITS_CASE08)},
+	{MASK_CASE09_CHUNK >> (0 * BITS_CASE09), MASK_CASE09_CHUNK >> (1 * BITS_CASE09)},
+	{MASK_CASE10_CHUNK >> (0 * BITS_CASE10), MASK_CASE10_CHUNK >> (1 * BITS_CASE10), MASK_CASE10_CHUNK >> (2 * BITS_CASE10)},
+	{MASK_CASE11_CHUNK >> (0 * BITS_CASE11), MASK_CASE11_CHUNK >> (1 * BITS_CASE11), MASK_CASE11_CHUNK >> (2 * BITS_CASE11), MASK_CASE11_CHUNK >> (3 * BITS_CASE11)},
+	{MASK_CASE12_CHUNK >> (0 * BITS_CASE12), MASK_CASE12_CHUNK >> (1 * BITS_CASE12), MASK_CASE12_CHUNK >> (2 * BITS_CASE12), MASK_CASE12_CHUNK >> (3 * BITS_CASE12), MASK_CASE12_CHUNK >> (4 * BITS_CASE12), MASK_CASE12_CHUNK >> (5 * BITS_CASE12), MASK_CASE12_CHUNK >> (6 * BITS_CASE12)},
+	{MASK_CASE13_CHUNK >> (0 * BITS_CASE13), MASK_CASE13_CHUNK >> (1 * BITS_CASE13), MASK_CASE13_CHUNK >> (2 * BITS_CASE13), MASK_CASE13_CHUNK >> (3 * BITS_CASE13), MASK_CASE13_CHUNK >> (4 * BITS_CASE13), MASK_CASE13_CHUNK >> (5 * BITS_CASE13), MASK_CASE13_CHUNK >> (6 * BITS_CASE13), MASK_CASE13_CHUNK >> (7 * BITS_CASE13), MASK_CASE13_CHUNK >> (8 * BITS_CASE13)},
+	{MASK_CASE14_CHUNK >> ( 0 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 1 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 2 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 3 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 4 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 5 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 6 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 7 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 8 * BITS_CASE14), MASK_CASE14_CHUNK >> ( 9 * BITS_CASE14), MASK_CASE14_CHUNK >> (10 * BITS_CASE14), MASK_CASE14_CHUNK >> (11 * BITS_CASE14), MASK_CASE14_CHUNK >> (12 * BITS_CASE14), MASK_CASE14_CHUNK >> (13 * BITS_CASE14)},
+	{MASK_CASE15_CHUNK >> (0 * BITS_CASE15), MASK_CASE15_CHUNK >> (1 * BITS_CASE15), MASK_CASE15_CHUNK >> (2 * BITS_CASE15), MASK_CASE15_CHUNK >> (3 * BITS_CASE15), MASK_CASE15_CHUNK >> (4 * BITS_CASE15)},
+	{},
+	{MASK_CASE17_CHUNK >> (0 * BITS_CASE17), MASK_CASE17_CHUNK >> (1 * BITS_CASE17), MASK_CASE17_CHUNK >> (2 * BITS_CASE17), MASK_CASE17_CHUNK >> (3 * BITS_CASE17), MASK_CASE17_CHUNK >> (4 * BITS_CASE17)}
+};
 
 
 /*
@@ -353,12 +412,14 @@ class s18_vector
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				s18_word word = s18_word(*gaps);
 				size_t len = word.size();
+				size_t _case = word.to_case();
+				bool special = 7 <= _case and _case <= 14;
 
 				for (size_t i = 0; i < len; i++) {
-					uint32_t wi = word[i];
+					uint32_t wi = word.access_fast(i, _case, special);
 					if (wi == 0) break; /* Word was not full */
 
-					accum += word[i];
+					accum += wi;
 					if (accum == target_accum) return 1;
 					if (accum > target_accum) return 0;
 				}
@@ -450,9 +511,11 @@ class rank_support_s18
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				s18_word word = s18_word(*gaps);
 				size_t len = word.size();
+				size_t _case = word.to_case();
+				bool special = 7 <= _case and _case <= 14;
 
 				for (size_t i = 0; i < len; i++, one_cnt++) {
-					uint32_t wi = word[i];
+					uint32_t wi = word.access_fast(i, _case, special);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -509,9 +572,11 @@ class select_support_s18
 			for (; std::distance(gaps, end) > 0 and counter; gaps++) {
 				s18_word word = s18_word(*gaps);
 				size_t len = word.size();
+				size_t _case = word.to_case();
+				bool special = 7 <= _case and _case <= 14;
 
 				for (size_t i = 0; i < len and counter; i++, counter--) {
-					uint32_t wi = word[i];
+					uint32_t wi = word.access_fast(i, _case, special);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
