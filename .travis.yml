@@ -1,12 +1,12 @@
 language: cpp
 sudo: false
+dist: bionic
 
 matrix:
     include:
         - os: linux
-          dist: bionic
           compiler: gcc-7
-          addons: &gcc7
+          addons:
               apt:
                   sources:
                       - kalakris-cmake
@@ -14,10 +14,6 @@ matrix:
                   packages:
                       - cmake
                       - g++-7
-          env: CC=gcc-7 CXX=g++-7 STDLIB=libstdc++
-
-        - os: osx
-          osx_image: xcode10.1
           env: CC=gcc-7 CXX=g++-7 STDLIB=libstdc++
 
 install:
