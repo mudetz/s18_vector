@@ -4,6 +4,7 @@ sudo: false
 matrix:
     include:
         - os: linux
+          dist: bionic
           compiler: gcc-7
           addons: &gcc7
               apt:
