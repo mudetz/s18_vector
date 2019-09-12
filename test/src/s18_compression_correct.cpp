@@ -14,10 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef TEST_S18
-#define TEST_S18
-#endif
-
 #define RANDOM_ITERATIONS 100
 
 #include <algorithm>
@@ -116,29 +112,29 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				{
 
 					/* Check encoding size */
-					REQUIRE(s18.debug__s18_seq().size() == 1);
+					REQUIRE(s18.data().size() == 1);
 
 					/* Check encoding header */
 					if (0 <= C and C <= 14) { /* Cases 1-15 */
-						REQUIRE((s18.debug__s18_seq()[0] & 0xF0000000) == cases[C]);
+						REQUIRE((s18.data()[0] & 0xF0000000) == cases[C]);
 					} else if (C == 15) {/* Case 16 */
-						REQUIRE((s18.debug__s18_seq()[0] & 0xF8000000) == cases[C]);
+						REQUIRE((s18.data()[0] & 0xF8000000) == cases[C]);
 					} else if (C == 16) {/* Case 17 */
-						REQUIRE((s18.debug__s18_seq()[0] & 0xF8000000) == cases[C]);
+						REQUIRE((s18.data()[0] & 0xF8000000) == cases[C]);
 					}
 
 					/* Check encoding body */
 					if (0 <= C and C <= 6) { /* Cases 1-7 */
 						for (size_t i = 0; i < chunks; i++)
-							REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i]);
+							REQUIRE(auto_shift(s18.data()[0], bits, i, chunks) == gv[i]);
 					} else if (7 <= C and C <= 14) {/* Cases 8-15 */
 						for (size_t i = 0; i < chunks; i++)
-							REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i + 28]);
+							REQUIRE(auto_shift(s18.data()[0], bits, i, chunks) == gv[i + 28]);
 					} else if (C == 15) { /* Case 16 */
-						REQUIRE((s18.debug__s18_seq()[0] & ~0xF8000000) == gv.size());
+						REQUIRE((s18.data()[0] & ~0xF8000000) == gv.size());
 					} else if (C == 16) {/* Case 17 */
 						for (size_t i = 0; i < chunks; i++)
-							REQUIRE(auto_shift(s18.debug__s18_seq()[0], bits, i, chunks) == gv[i]);
+							REQUIRE(auto_shift(s18.data()[0], bits, i, chunks) == gv[i]);
 					}
 				}
 				AND_THEN("Size is correct")
@@ -147,12 +143,12 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				}
 				AND_THEN("Word size is correct")
 				{
-					REQUIRE(sdsl::s18_word(s18.debug__s18_seq()[0]).size() == gv.size());
+					REQUIRE(sdsl::s18_word(s18.data()[0]).size() == gv.size());
 				}
 				AND_THEN ("Gaps are decoded correctly")
 				{
-					for (size_t i = 0; i < sdsl::s18_word(s18.debug__s18_seq()[0]).size(); i++)
-						REQUIRE(gv[i] == s18.debug__first_word_nth_gap(i));
+					for (size_t i = 0; i < sdsl::s18_word(s18.data()[0]).size(); i++)
+						REQUIRE(gv[i] == sdsl::s18_word(*s18.data().begin())[i]);
 				}
 				AND_THEN("It is decompressed correctly (using [slow] access)")
 				{

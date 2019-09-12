@@ -33,7 +33,7 @@ CXX ?= /usr/bin/g++
 CPPFLAGS = $(addprefix -I, $(HEADDIR)) -isystem../sdsl/build/include \
 	-I../s18/head -isystem../benchmark/include -MMD -MP \
 	-isystem../s9/include/sdsl
-CFLAGS = -O9 -std=gnu++11 -Wall -Weffc++ -Wextra \
+CFLAGS = -O9 -std=gnu++17 -Wall -Weffc++ -Wextra \
 	-Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion \
 	-Wdisabled-optimization -Wfloat-equal -Wformat -Wformat=2 \
 	-Wformat-nonliteral -Wformat-security -Wformat-y2k -Wimport \
@@ -47,7 +47,7 @@ CFLAGS = -O9 -std=gnu++11 -Wall -Weffc++ -Wextra \
 	-Wunknown-pragmas -Wunreachable-code -Wunused -Wunused-function \
 	-Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
 	-Wvariadic-macros -Wvolatile-register-var -Wwrite-strings \
-	-mtune=native -DTEST_S18 -DS9_DEBUG
+	-mtune=native -DNDEBUG -DS9_DEBUG
 LDFLAGS = -L../sdsl/build/lib -L../benchmark/build/src
 LDLIBS = -lsdsl -ldivsufsort -ldivsufsort64 -lpthread -lbenchmark
 DEBUG = -g

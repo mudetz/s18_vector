@@ -30,7 +30,6 @@ static void BM_access_bv(benchmark::State& state) {
 		bv[idx(g)];
 
 	benchmark::DoNotOptimize(bv.data());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_access_bv, sdsl::bit_vector)->DenseRange(0,2,1);
 
@@ -51,7 +50,6 @@ static void BM_access_s9(benchmark::State& state) {
 		s9[idx(g)];
 
 	benchmark::DoNotOptimize(s9.get_seq());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<16>)->DenseRange(0,2,1);
@@ -79,8 +77,7 @@ static void BM_access_s18(benchmark::State& state) {
 	for (auto _ : state)
 		s18[idx(g)];
 
-	benchmark::DoNotOptimize(s18.debug__s18_seq());
-	benchmark::ClobberMemory();
+	benchmark::DoNotOptimize(s18.data());
 }
 BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<16>)->DenseRange(0,2,1);
@@ -109,7 +106,6 @@ static void BM_access_rrr(benchmark::State& state) {
 		rrr[idx(g)];
 
 	benchmark::DoNotOptimize(rrr.begin());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_access_rrr, sdsl::rrr_vector<8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_rrr, sdsl::rrr_vector<16>)->DenseRange(0,2,1);
@@ -135,7 +131,6 @@ static void BM_access_sd(benchmark::State& state) {
 		sd[idx(g)];
 
 	benchmark::DoNotOptimize(sd.begin());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_access_sd, sdsl::sd_vector<>)->DenseRange(0,2,1);
 
@@ -160,7 +155,6 @@ static void BM_rank_bv(benchmark::State& state) {
 		rs(idx(g));
 
 	benchmark::DoNotOptimize(bv.data());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_rank_bv, sdsl::bit_vector, sdsl::rank_support_v<1>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_bv, sdsl::bit_vector, sdsl::rank_support_v5<1>)->DenseRange(0,2,1);
@@ -184,7 +178,6 @@ static void BM_rank_s9(benchmark::State& state) {
 		rs(idx(g));
 
 	benchmark::DoNotOptimize(s9.get_seq());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>)->DenseRange(0,2,1);
@@ -213,8 +206,7 @@ static void BM_rank_s18(benchmark::State& state) {
 	for (auto _ : state)
 		rs(idx(g));
 
-	benchmark::DoNotOptimize(s18.debug__s18_seq());
-	benchmark::ClobberMemory();
+	benchmark::DoNotOptimize(s18.data());
 }
 BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<8>, sdsl::rank_support_s18<1,8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<16>, sdsl::rank_support_s18<1,16>)->DenseRange(0,2,1);
@@ -245,7 +237,6 @@ static void BM_rank_rrr(benchmark::State& state) {
 		rs(idx(g));
 
 	benchmark::DoNotOptimize(rrr.begin());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_rank_rrr, sdsl::rrr_vector<8>, sdsl::rank_support_rrr<1,8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_rrr, sdsl::rrr_vector<16>, sdsl::rank_support_rrr<1,16>)->DenseRange(0,2,1);
@@ -273,7 +264,6 @@ static void BM_rank_sd(benchmark::State& state) {
 		rs(idx(g));
 
 	benchmark::DoNotOptimize(sd.begin());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_rank_sd, sdsl::sd_vector<>, sdsl::rank_support_sd<1>)->DenseRange(0,2,1);
 
@@ -300,7 +290,6 @@ static void BM_select_bv(benchmark::State& state) {
 		ss(idx(g));
 
 	benchmark::DoNotOptimize(bv.data());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_select_bv, sdsl::bit_vector, sdsl::select_support_mcl<1>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_bv, sdsl::bit_vector, sdsl::select_support_scan<1>)->DenseRange(0,2,1);
@@ -324,7 +313,6 @@ static void BM_select_s9(benchmark::State& state) {
 		ss(idx(g));
 
 	benchmark::DoNotOptimize(s9.get_seq());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<8>, sdsl::select_support_s9<1,8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<16>, sdsl::select_support_s9<1,16>)->DenseRange(0,2,1);
@@ -354,8 +342,7 @@ static void BM_select_s18(benchmark::State& state) {
 	for (auto _ : state)
 		ss(idx(g));
 
-	benchmark::DoNotOptimize(s18.debug__s18_seq());
-	benchmark::ClobberMemory();
+	benchmark::DoNotOptimize(s18.data());
 }
 BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<8>, sdsl::select_support_s18<1,8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<16>, sdsl::select_support_s18<1,16>)->DenseRange(0,2,1);
@@ -387,7 +374,6 @@ static void BM_select_rrr(benchmark::State& state) {
 		ss(idx(g));
 
 	benchmark::DoNotOptimize(rrr.begin());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_select_rrr, sdsl::rrr_vector<8>, sdsl::select_support_rrr<1,8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_rrr, sdsl::rrr_vector<16>, sdsl::select_support_rrr<1,16>)->DenseRange(0,2,1);
@@ -416,7 +402,6 @@ static void BM_select_sd(benchmark::State& state) {
 		ss(idx(g));
 
 	benchmark::DoNotOptimize(sd.begin());
-	benchmark::ClobberMemory();
 }
 BENCHMARK_TEMPLATE(BM_select_sd, sdsl::sd_vector<>, sdsl::select_support_sd<1>)->DenseRange(0,2,1);
 

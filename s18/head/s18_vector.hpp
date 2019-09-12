@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef INCLUDED_SDSL_S18_VECTOR_V2
-#define INCLUDED_SDSL_S18_VECTOR_V2
+#ifndef INCLUDED_SDSL_S18_VECTOR
+#define INCLUDED_SDSL_S18_VECTOR
 
 #include <algorithm>
 #include <cassert>
@@ -70,6 +70,7 @@ class s18_word
 		static size_t const DECODER_CHUNKS[17];
 		static size_t const DECODER_BITS[17];
 		static uint32_t const DECODER_MASK[17][14];
+		static uint32_t const DECODER_SHIFT[17][14];
 	public:
 		uint32_t value;
 		size_t   chunk_size;
@@ -113,6 +114,33 @@ class s18_word
 				default: switch (value & MASK_HEADER5) {
 					case CASE16: return std::make_pair(CASE16, (value & MASK_BODY5));
 					case CASE17: return std::make_pair(CASE17, (value & MASK_BODY5));
+					default: throw std::invalid_argument("s18_word::split: Invalid case");
+				}
+			}
+		}
+
+		std::tuple<uint32_t, uint32_t, uint32_t> metadata(void) const
+		{
+			// Return leading 1s, case as int and len w/o leading ones
+			switch (value & MASK_HEADER4) {
+				case CASE01: return std::make_tuple(0,  0, CHUNKS_CASE01);
+				case CASE02: return std::make_tuple(1,  0, CHUNKS_CASE02);
+				case CASE03: return std::make_tuple(2,  0, CHUNKS_CASE03);
+				case CASE04: return std::make_tuple(3,  0, CHUNKS_CASE04);
+				case CASE05: return std::make_tuple(4,  0, CHUNKS_CASE05);
+				case CASE06: return std::make_tuple(5,  0, CHUNKS_CASE06);
+				case CASE07: return std::make_tuple(6,  0, CHUNKS_CASE07);
+				case CASE08: return std::make_tuple(0, 28, CHUNKS_CASE01);
+				case CASE09: return std::make_tuple(1, 28, CHUNKS_CASE02);
+				case CASE10: return std::make_tuple(2, 28, CHUNKS_CASE03);
+				case CASE11: return std::make_tuple(3, 28, CHUNKS_CASE04);
+				case CASE12: return std::make_tuple(4, 28, CHUNKS_CASE05);
+				case CASE13: return std::make_tuple(5, 28, CHUNKS_CASE06);
+				case CASE14: return std::make_tuple(6, 28, CHUNKS_CASE07);
+				case CASE15: return std::make_tuple(16, 28, CHUNKS_CASE17);
+				default: switch (value & MASK_HEADER5) {
+					case CASE16: return std::make_tuple(15, (value & MASK_BODY5), 0);
+					case CASE17: return std::make_tuple(16, 0, CHUNKS_CASE17);
 					default: throw std::invalid_argument("s18_word::split: Invalid case");
 				}
 			}
@@ -177,8 +205,14 @@ class s18_word
 			if (_case == 15)
 				return key < (value & MASK_CASE16_CHUNK);
 			if (not special)
-				return (value & DECODER_MASK[_case][key]) >> (DECODER_BITS[_case] * (DECODER_CHUNKS[_case] - key - 1));
-			return key < 28 ? 1 : (value & DECODER_MASK[_case][key - 28]) >> (DECODER_BITS[_case] * (DECODER_CHUNKS[_case] - (key - 28) - 1));
+				return (value & DECODER_MASK[_case][key]) >> DECODER_SHIFT[_case][key];
+			return key < 28 ? 1 : (value & DECODER_MASK[_case][key - 28]) >> DECODER_SHIFT[_case][key - 28];
+		}
+
+		uint32_t access_fast_v2(size_t key, size_t _case) const
+		{
+			assert(_case != 15);
+			return (value & DECODER_MASK[_case][key]) >> DECODER_SHIFT[_case][key];
 		}
 
 		size_t to_case(void) const
@@ -292,6 +326,25 @@ uint32_t const s18_word::DECODER_MASK[17][14] = {
 	{},
 	{MASK_CASE17_CHUNK >> (0 * BITS_CASE17), MASK_CASE17_CHUNK >> (1 * BITS_CASE17), MASK_CASE17_CHUNK >> (2 * BITS_CASE17), MASK_CASE17_CHUNK >> (3 * BITS_CASE17), MASK_CASE17_CHUNK >> (4 * BITS_CASE17)}
 };
+uint32_t const s18_word::DECODER_SHIFT[17][14] = {
+	{0},
+	{14,0},
+	{18,9,0},
+	{21,14,7,0},
+	{24,20,16,12,8,4,0},
+	{24,21,18,15,12,9,6,3,0},
+	{26,24,22,20,18,16,14,12,10,8,6,4,2,0},
+	{0},
+	{14,0},
+	{18,9,0},
+	{21,14,7,0},
+	{24,20,16,12,8,4,0},
+	{24,21,18,15,12,9,6,3,0},
+	{26,24,22,20,18,16,14,12,10,8,6,4,2,0},
+	{20,15,10,5,0},
+	{},
+	{20,15,10,5,0},
+};
 
 
 /*
@@ -403,6 +456,11 @@ class s18_vector
 				(uint32_t)key - (position_in_idx_for_unpack ? *(block_to_unpack - 1) : 0)
 			);
 		}
+
+		int_vector<32> const &data(void) const
+		{
+			return s18_seq;
+		}
 	private:
 		uint32_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
 		{
@@ -410,13 +468,14 @@ class s18_vector
 			uint32_t accum = -1;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
-				s18_word word = s18_word(*gaps);
-				size_t len = word.size();
-				size_t _case = word.to_case();
-				bool special = 7 <= _case and _case <= 14;
+				s18_word word(*gaps);
+				auto const [_case, leading_1s, len] = word.metadata();
+
+				if (leading_1s and (accum += leading_1s) >= target_accum)
+					return 1;
 
 				for (size_t i = 0; i < len; i++) {
-					uint32_t wi = word.access_fast(i, _case, special);
+					uint32_t wi = word.access_fast_v2(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -449,12 +508,6 @@ class s18_vector
 			/* Return iterator to the very next compressable gap */
 			return gaps;
 		}
-
-#ifdef TEST_S18
-	public:
-		int_vector<32> const &debug__s18_seq(void) const { return s18_seq; }
-		uint32_t debug__first_word_nth_gap(size_t n) const { return s18_word(*s18_seq.begin())[n]; }
-#endif
 };
 
 
@@ -509,7 +562,7 @@ class rank_support_s18
 			size_t one_cnt = 0;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
-				s18_word word = s18_word(*gaps);
+				s18_word word(*gaps);
 				size_t len = word.size();
 				size_t _case = word.to_case();
 				bool special = 7 <= _case and _case <= 14;
@@ -570,7 +623,7 @@ class select_support_s18
 			size_t accum = 0;
 
 			for (; std::distance(gaps, end) > 0 and counter; gaps++) {
-				s18_word word = s18_word(*gaps);
+				s18_word word(*gaps);
 				size_t len = word.size();
 				size_t _case = word.to_case();
 				bool special = 7 <= _case and _case <= 14;
