@@ -4,16 +4,16 @@ sudo: false
 matrix:
     include:
         - os: linux
-          compiler: gcc-5
-          addons: &gcc5
+          compiler: gcc-7
+          addons: &gcc7
               apt:
                   sources:
                       - kalakris-cmake
                       - ubuntu-toolchain-r-test
                   packages:
                       - cmake
-                      - g++-5
-          env: CC=gcc-5 CXX=g++-5 STDLIB=libstdc++
+                      - g++-7
+          env: CC=gcc-7 CXX=g++-7 STDLIB=libstdc++
 
 install:
     - git clone --depth=1 https://github.com/simongog/sdsl-lite ${TRAVIS_BUILD_DIR}/sdsl/src
