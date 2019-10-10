@@ -363,9 +363,12 @@ class s18_vector
 		size_t         m_ones;        // 1 bits in original sequence
 		size_t         m_size;        // Lenth of original bit vector
 		size_t         s18_seq_size;  // Count of S18 words
+		size_t	       l2_size;
 		int_vector<32> s18_seq;       // Vector of S18 words
-		vector_type    idx_words;     // Block leading words
 		vector_type    idx_bits;      // Total bits before block
+		vector_type    idx_ones;      // Total 1 bits before block
+		vector_type    idx_bits_l2;
+		vector_type    idx_ones_l2;
 
 		typedef typename vector_type::iterator       iterator_type;
 		typedef typename vector_type::const_iterator const_iterator_type;
@@ -379,9 +382,12 @@ class s18_vector
 			: m_ones(other.m_ones)
 			, m_size(other.m_size)
 			, s18_seq_size(other.s18_seq_size)
+			, l2_size(other.l2_size)
 			, s18_seq(other.s18_seq)
-			, idx_words(other.idx_words)
 			, idx_bits(other.idx_bits)
+			, idx_ones(other.idx_ones)
+			, idx_bits_l2(other.idx_bits_l2)
+			, idx_ones_l2(other.idx_ones_l2)
 		{} /* end s18_vector::s18_vector */
 
 		/* Move constructor */
@@ -395,17 +401,17 @@ class s18_vector
 			: m_ones(util::cnt_one_bits(bv))
 			, m_size(bv.size())
 			, s18_seq_size(0)
+			, l2_size(8 * (m_ones / b_s + 2))
 			, s18_seq(m_ones, 0)
-			, idx_words((m_ones / b_s) + (m_ones % b_s ? 1 : 0), 0)
-			, idx_bits((m_ones / b_s) + (m_ones % b_s ? 1 : 0), 0)
+			, idx_bits(m_ones / b_s + 2, 0)
+			, idx_ones(m_ones / b_s + 2, 0)
+			, idx_bits_l2(0, 0)
+			, idx_ones_l2(0, 0)
 		{
-			/* Compression will be done in blks blocks */
-			size_t blks = (m_ones / b_s) + (m_ones % b_s ? 1 : 0);
-
 			/* Get absolute positions */
 			vector_type absp = vector_type(m_ones, 0);
 			for (size_t i = 0, j = 0; i < m_size; i++)
-				if (bv[i]) absp[j++] = (uint32_t)i;
+				if (bv[i]) absp[j++] = static_cast<uint32_t>(i);
 
 			/* Get gaps from absolute positions */
 			vector_type gaps = vector_type(m_ones, 0);
@@ -413,20 +419,49 @@ class s18_vector
 				gaps[i] = absp[i] - absp[i - 1];
 			gaps[0] = absp[0] + 1;
 
-			/* Fill indexes */
-			for (size_t i = 0; i < idx_bits.size(); i++)
-				idx_bits[i] = b_s * (i + 1) < absp.size() ? absp[b_s * (i + 1) - 1] + 1 : (uint32_t)m_size;
+			/* Indices indexes */
+			size_t size_idx_bits = 1;
+			size_t size_idx_ones = 1;
 
-			/* Encode blocks into multiple S18 words each */
-			for (size_t i = 0; i < blks; i++) {
-				idx_words[i] = (uint32_t)s18_seq_size;
-				auto from = gaps.begin() + (i * b_s);
-				auto to = std::min(gaps.begin() + ((i + 1) * b_s), gaps.end());
-				pack_block(from, to);
+			/* Encode gaps into s18 words */
+			const_iterator_type gap = gaps.begin();
+			const_iterator_type const begin = gaps.begin();
+			const_iterator_type const end = gaps.end();
+			while (std::distance(gap, end) > 0) {
+				for (size_t i = 0; i < b_s; i++)
+					gap = pack_word(gap, end);
+
+				size_t gaps_encoded = std::distance(begin, gap);
+				idx_bits[size_idx_bits++] = absp[gaps_encoded - 1] + 1;
+				idx_ones[size_idx_ones++] = static_cast<uint32_t>(gaps_encoded);
 			}
 
 			/* Get rid of extra unused space */
 			s18_seq.resize(s18_seq_size);
+			idx_bits.resize(size_idx_bits);
+			idx_ones.resize(size_idx_ones);
+
+			l2_size = 8 * size_idx_bits;
+			idx_bits_l2.resize(l2_size);
+			idx_ones_l2.resize(l2_size);
+#if 0
+			/* Pre-calculate L2 indexes */
+			for (size_t i = 0; i < l2_size; i++) {
+				auto it = std::upper_bound(idx_bits.begin(), idx_bits.end(), i * m_size / l2_size);
+				idx_bits_l2[i] = static_cast<uint32_t>(std::distance(idx_bits.begin(), it));
+			}
+
+			for (size_t i = 0; i < l2_size; i++) {
+				auto it = std::upper_bound(idx_ones.begin(), idx_ones.end(), i * m_ones / l2_size);
+				idx_ones_l2[i] = static_cast<uint32_t>(std::distance(idx_ones.begin(), it));
+			}
+#endif
+			/* Check indexes are correct */
+#if DEBUG
+			//assert(idx_bits[size_idx_bits - 1] == m_size or idx_bits[size_idx_bits - 1] == m_size + 1);
+			//assert(idx_ones[size_idx_ones - 1] == m_ones);
+			//assert(size_idx_ones == size_idx_bits);
+#endif
 		} /* end s18_vector::s18_vector */
 
 		size_t size(void) const
@@ -445,15 +480,15 @@ class s18_vector
 
 		uint32_t operator[](size_t const key) const
 		{
-			auto block_to_unpack = std::lower_bound(idx_bits.begin(), idx_bits.end(), key);
-			size_t position_in_idx_for_unpack = std::distance(idx_bits.begin(), block_to_unpack);
-
-			size_t start = idx_words[position_in_idx_for_unpack];
+			auto block_to_unpack = std::upper_bound(idx_bits.begin(), idx_bits.end(), key);
+			size_t position_in_idx_for_unpack = std::distance(idx_bits.begin(), block_to_unpack) - 1;
+			//size_t position_in_idx_for_unpack = idx_bits_l2[key / l2_size] - 1;
+			size_t start = position_in_idx_for_unpack * b_s;
 
 			return find_block_nth(
 				s18_seq.begin() + start,
 				s18_seq.end(),
-				(uint32_t)key - (position_in_idx_for_unpack ? *(block_to_unpack - 1) : 0)
+				(uint32_t)key - *(block_to_unpack - 1)
 			);
 		}
 
@@ -497,6 +532,10 @@ class s18_vector
 
 		inline const_iterator_type pack_word(const_iterator_type const begin, const_iterator_type const end)
 		{
+			/* Early return */
+			if (std::distance(begin, end) <= 0)
+				return begin;
+
 			/* Pointer to gaps */
 			const_iterator_type gaps = begin;
 
@@ -543,15 +582,15 @@ class rank_support_s18
 
 		size_t rank1(size_t const key) const
 		{
-			auto block_to_unpack = std::lower_bound(bv.idx_bits.begin(), bv.idx_bits.end(), key);
-			size_t position_in_idx_for_unpack = std::distance(bv.idx_bits.begin(), block_to_unpack);
+			auto block_to_unpack = std::upper_bound(bv.idx_bits.begin(), bv.idx_bits.end(), key);
+			size_t position_in_idx_for_unpack = std::distance(bv.idx_bits.begin(), block_to_unpack) - 1;
 
-			size_t start = bv.idx_words[position_in_idx_for_unpack];
+			size_t start = b_s * position_in_idx_for_unpack;
 
-			return b_s * position_in_idx_for_unpack + find_block_nth(
+			return bv.idx_ones[position_in_idx_for_unpack] + find_block_nth(
 				bv.s18_seq.begin() + start,
 				bv.s18_seq.end(),
-				(uint32_t)key - (position_in_idx_for_unpack ? *(block_to_unpack - 1) : 0)
+				(uint32_t)key - bv.idx_bits[position_in_idx_for_unpack]
 			);
 		}
 
@@ -607,13 +646,15 @@ class select_support_s18
 
 		size_t select1(size_t const key) const
 		{
-			size_t position_in_idx_for_unpack = key / b_s;
-			size_t start = bv.idx_words[position_in_idx_for_unpack];
+			auto block_to_unpack = std::upper_bound(bv.idx_ones.begin(), bv.idx_ones.end(), key);
+			size_t position_in_idx_for_unpack = std::distance(bv.idx_ones.begin(), block_to_unpack) - 1;
 
-			return (position_in_idx_for_unpack > 0 ? bv.idx_bits[position_in_idx_for_unpack - 1] : 0) + partial_sum(
+			size_t start = b_s * position_in_idx_for_unpack;
+
+			return bv.idx_bits[position_in_idx_for_unpack] + partial_sum(
 				bv.s18_seq.begin() + start,
 				bv.s18_seq.end(),
-				(uint32_t)key % b_s + 1
+				(uint32_t)key - bv.idx_ones[position_in_idx_for_unpack]
 			);
 		}
 
@@ -636,7 +677,10 @@ class select_support_s18
 				}
 			}
 
-			if (counter) throw std::runtime_error("select_support_s18::partial_sum: vector consumed before target counter");
+#if DEBUG
+			if (counter)
+				throw std::runtime_error("select_support_s18::partial_sum: vector consumed before target counter");
+#endif
 			return accum;
 		}
 	public:

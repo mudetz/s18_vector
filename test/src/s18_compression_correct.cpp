@@ -182,7 +182,7 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				{
 					sdsl::select_support_s18<1, B> ss(s18);
 					for (size_t i = 0; i < av.size(); i++)
-						REQUIRE(ss(i) == av[i]);
+						REQUIRE(ss(i + 1) == av[i]);
 				}
 			}
 		}
@@ -242,7 +242,7 @@ TEMPLATE_TEST_CASE_SIG("100 sparse vectors are compressed correctly", "", ((uint
 			{
 				sdsl::select_support_s18<1, B> ss(s18);
 				for (size_t i = 0; i < av.size(); i++)
-					REQUIRE(ss(i) == av[i]);
+					REQUIRE(ss(i + 1) == av[i]);
 			}
 		}
 	}
@@ -301,7 +301,7 @@ TEMPLATE_TEST_CASE_SIG("100 normal vectors are compressed correctly", "", ((uint
 			{
 				sdsl::select_support_s18<1, B> ss(s18);
 				for (size_t i = 0; i < av.size(); i++)
-					REQUIRE(ss(i) == av[i]);
+					REQUIRE(ss(i + 1) == av[i]);
 			}
 		}
 	}
@@ -360,12 +360,11 @@ TEMPLATE_TEST_CASE_SIG("100 dense vectors are compressed correctly", "", ((uint1
 			{
 				sdsl::select_support_s18<1, B> ss(s18);
 				for (size_t i = 0; i < av.size(); i++)
-					REQUIRE(ss(i) == av[i]);
+					REQUIRE(ss(i + 1) == av[i]);
 			}
 		}
 	}
 }
-
 
 sdsl::int_vector<> gap_vector_gen(size_t bits, size_t total, bool prepend_1s)
 {

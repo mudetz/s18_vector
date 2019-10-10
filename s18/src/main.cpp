@@ -21,9 +21,7 @@
 #include <sdsl/sd_vector.hpp>
 #include "s18_vector.hpp"
 
-#define SIZE 10000
-#define SIZE_PLOT 30
-
+#define SIZE 100
 
 int main(void)
 {
@@ -38,9 +36,17 @@ int main(void)
 		i += d(g) + 1;
 	}
 
-	sdsl::rrr_vector<63>  rrrb(b);
-	sdsl::sd_vector<>     sdb(b);
-	sdsl::s18_vector<64>  s1864(bv);
+	sdsl::s18_vector<1> s18(b);
+	sdsl::rank_support_s18<1,1> rs18(s18);
+	sdsl::rank_support_v rs(&b);
+
+	for (size_t i = 0; i < SIZE; i++)
+		std::cout << rs(i) << "," << std::flush;
+	std::cout << std::endl;
+
+	for (size_t i = 0; i < SIZE; i++)
+		std::cout << rs18(i) << "," << std::flush;
+	std::cout << std::endl;
 
 	return 0;
 }
