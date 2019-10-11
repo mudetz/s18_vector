@@ -8,23 +8,41 @@
 
 #define SIZE 10000000
 
-static double const DENSITY[] = {.97, .5, .03};
 
+sdsl::bit_vector &test_bv(int c)
+{
+	static double const DENSITY[] = {.97, .5, .03};
+	static bool done = false;
+	static sdsl::bit_vector bvs[] = {
+		sdsl::bit_vector(SIZE, 0),
+		sdsl::bit_vector(SIZE, 0),
+		sdsl::bit_vector(SIZE, 0)
+	};
+
+	if (done) return bvs[c];
+	done = true;
+
+	std::random_device g;
+	for (size_t opt = 0; opt < 3; opt++) {
+		std::geometric_distribution<uint32_t> d(DENSITY[opt]);
+		size_t i = d(g) + 1;
+		while (i < bvs[opt].size()) {
+			bvs[opt][i] = 1;
+			i += d(g) + 1;
+		}
+	}
+
+	return bvs[c];
+}
 
 /*
  * ACCESS
  */
 template <class BV>
 static void BM_access_bv(benchmark::State& state) {
-	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	BV bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
+	BV &bv = test_bv(static_cast<int>(state.range(0)));
 
+	std::random_device g;
 	std::uniform_int_distribution<int> idx(0, SIZE - 1);
 	for (auto _ : state)
 		bv[idx(g)];
@@ -35,16 +53,10 @@ BENCHMARK_TEMPLATE(BM_access_bv, sdsl::bit_vector)->DenseRange(0,2,1);
 
 template <class S9V>
 static void BM_access_s9(benchmark::State& state) {
-	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 
 	S9V s9(bv);
+	std::random_device g;
 	std::uniform_int_distribution<int> idx(0, SIZE - 1);
 	for (auto _ : state)
 		s9[idx(g)];
@@ -61,16 +73,10 @@ BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<512>)->DenseRange(0,2,1);
 
 template <class S18V>
 static void BM_access_s18(benchmark::State& state) {
-	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 
 	S18V s18(bv);
+	std::random_device g;
 	std::uniform_int_distribution<int> idx(0, SIZE - 1);
 	for (auto _ : state)
 		s18[idx(g)];
@@ -87,14 +93,8 @@ BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<64>)->DenseRange(0,2,1);
 
 template <class RRR>
 static void BM_access_rrr(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	RRR rrr(bv);
 	std::uniform_int_distribution<int> idx(0, SIZE - 1);
@@ -112,14 +112,8 @@ BENCHMARK_TEMPLATE(BM_access_rrr, sdsl::rrr_vector<256>)->DenseRange(0,2,1);
 
 template <class SD>
 static void BM_access_sd(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	SD sd(bv);
 	std::uniform_int_distribution<int> idx(0, SIZE - 1);
@@ -136,14 +130,8 @@ BENCHMARK_TEMPLATE(BM_access_sd, sdsl::sd_vector<>)->DenseRange(0,2,1);
  */
 template <class BV, class RS>
 static void BM_rank_bv(benchmark::State& state) {
+	BV &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	BV bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	RS rs(&bv);
 	std::uniform_int_distribution<int> idx(0, SIZE - 1);
@@ -158,14 +146,8 @@ BENCHMARK_TEMPLATE(BM_rank_bv, sdsl::bit_vector, sdsl::rank_support_scan<1>)->De
 
 template <class S9V, class RS>
 static void BM_rank_s9(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	S9V s9(bv);
 	RS rs(&s9);
@@ -185,14 +167,8 @@ BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512
 
 template <class S18V, class RS>
 static void BM_rank_s18(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	S18V s18(bv);
 	RS rs(s18);
@@ -213,14 +189,8 @@ BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<64>, sdsl::rank_support_s18<1,6
 
 template <class RRR, class RS>
 static void BM_rank_rrr(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	RRR rrr(bv);
 	RS rs(&rrr);
@@ -240,14 +210,8 @@ BENCHMARK_TEMPLATE(BM_rank_rrr, sdsl::rrr_vector<256>, sdsl::rank_support_rrr<1,
 
 template <class SD, class RS>
 static void BM_rank_sd(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	SD sd(bv);
 	RS rs(&sd);
@@ -265,14 +229,8 @@ BENCHMARK_TEMPLATE(BM_rank_sd, sdsl::sd_vector<>, sdsl::rank_support_sd<1>)->Den
  */
 template <class BV, class SS>
 static void BM_select_bv(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	BV bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	SS ss(&bv);
 	int MAX = (int)sdsl::util::cnt_one_bits(bv);
@@ -288,14 +246,8 @@ BENCHMARK_TEMPLATE(BM_select_bv, sdsl::bit_vector, sdsl::select_support_scan<1>)
 
 template <class S9V, class SS>
 static void BM_select_s9(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 	int MAX = (int)sdsl::util::cnt_one_bits(bv);
 
 	S9V s9(bv);
@@ -316,14 +268,8 @@ BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<512>, sdsl::select_support_s9<1
 
 template <class S18V, class SS>
 static void BM_select_s18(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 	int MAX = (int)sdsl::util::cnt_one_bits(bv);
 
 	S18V s18(bv);
@@ -345,14 +291,8 @@ BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<64>, sdsl::select_support_s18
 
 template <class RRR, class SS>
 static void BM_select_rrr(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 	int MAX = (int)sdsl::util::cnt_one_bits(bv);
 
 	RRR rrr(bv);
@@ -373,14 +313,8 @@ BENCHMARK_TEMPLATE(BM_select_rrr, sdsl::rrr_vector<256>, sdsl::select_support_rr
 
 template <class SD, class SS>
 static void BM_select_sd(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 	int MAX = (int)sdsl::util::cnt_one_bits(bv);
 
 	SD sd(bv);
@@ -399,14 +333,8 @@ BENCHMARK_TEMPLATE(BM_select_sd, sdsl::sd_vector<>, sdsl::select_support_sd<1>)-
  */
 template <class BV, class RS, class SS>
 static void BM_successor_bv(benchmark::State& state) {
+	BV &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	BV bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	RS rs(&bv);
 	SS ss(&bv);
@@ -423,14 +351,8 @@ BENCHMARK_TEMPLATE(BM_successor_bv, sdsl::bit_vector, sdsl::rank_support_scan<1>
 
 template <class S9V, class RS, class SS>
 static void BM_successor_s9(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	S9V s9(bv);
 	RS rs(&s9);
@@ -451,14 +373,8 @@ BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<512>, sdsl::rank_support_s9<
 
 template <class S18V, class RS, class SS>
 static void BM_successor_s18(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	S18V s18(bv);
 	RS rs(s18);
@@ -479,14 +395,8 @@ BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<64>, sdsl::rank_support_s1
 
 template <class RRR, class RS, class SS>
 static void BM_successor_rrr(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	RRR rrr(bv);
 	RS rs(&rrr);
@@ -506,14 +416,8 @@ BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<256>, sdsl::rank_support_r
 
 template <class SD, class RS, class SS>
 static void BM_successor_sd(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
 	std::random_device g;
-	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
-	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
-	size_t i = d(g) + 1;
-	while (i < bv.size()) {
-		bv[i] = 1;
-		i += d(g) + 1;
-	}
 
 	SD sd(bv);
 	RS rs(&sd);
