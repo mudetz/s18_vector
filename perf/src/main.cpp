@@ -6,7 +6,7 @@
 #include "s18_vector.hpp"
 #include "s9_vector.hpp"
 
-#define SIZE 1000000
+#define SIZE 10000000
 
 static double const DENSITY[] = {.97, .5, .03};
 
@@ -58,8 +58,6 @@ BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<64>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<128>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<256>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<512>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<1024>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_access_s9, sdsl::s9_vector<2048>)->DenseRange(0,2,1);
 
 template <class S18V>
 static void BM_access_s18(benchmark::State& state) {
@@ -86,8 +84,6 @@ BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<8>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<16>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<32>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<64>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<128>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_access_s18, sdsl::s18_vector<256>)->DenseRange(0,2,1);
 
 template <class RRR>
 static void BM_access_rrr(benchmark::State& state) {
@@ -186,8 +182,6 @@ BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>)
 BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<1024>, sdsl::rank_support_s9<1,1024>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_rank_s9, sdsl::s9_vector<2048>, sdsl::rank_support_s9<1,2048>)->DenseRange(0,2,1);
 
 template <class S18V, class RS>
 static void BM_rank_s18(benchmark::State& state) {
@@ -215,8 +209,6 @@ BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<8>, sdsl::rank_support_s18<1,8>
 BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<16>, sdsl::rank_support_s18<1,16>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<32>, sdsl::rank_support_s18<1,32>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<64>, sdsl::rank_support_s18<1,64>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<128>, sdsl::rank_support_s18<1,128>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_rank_s18, sdsl::s18_vector<256>, sdsl::rank_support_s18<1,256>)->DenseRange(0,2,1);
 
 
 template <class RRR, class RS>
@@ -321,8 +313,6 @@ BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<64>, sdsl::select_support_s9<1,
 BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<128>, sdsl::select_support_s9<1,128>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<256>, sdsl::select_support_s9<1,256>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<512>, sdsl::select_support_s9<1,512>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<1024>, sdsl::select_support_s9<1,1024>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_select_s9, sdsl::s9_vector<2048>, sdsl::select_support_s9<1,2048>)->DenseRange(0,2,1);
 
 template <class S18V, class SS>
 static void BM_select_s18(benchmark::State& state) {
@@ -351,8 +341,6 @@ BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<8>, sdsl::select_support_s18<
 BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<16>, sdsl::select_support_s18<1,16>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<32>, sdsl::select_support_s18<1,32>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<64>, sdsl::select_support_s18<1,64>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<128>, sdsl::select_support_s18<1,128>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_select_s18, sdsl::s18_vector<256>, sdsl::select_support_s18<1,256>)->DenseRange(0,2,1);
 
 
 template <class RRR, class SS>
@@ -460,8 +448,6 @@ BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<64>, sdsl::rank_support_s9<1
 BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>, sdsl::select_support_s9<1,128>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>, sdsl::select_support_s9<1,256>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>, sdsl::select_support_s9<1,512>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<1024>, sdsl::rank_support_s9<1,1024>, sdsl::select_support_s9<1,1024>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<2048>, sdsl::rank_support_s9<1,2048>, sdsl::select_support_s9<1,2048>)->DenseRange(0,2,1);
 
 template <class S18V, class RS, class SS>
 static void BM_successor_s18(benchmark::State& state) {
@@ -490,8 +476,6 @@ BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<8>, sdsl::rank_support_s18
 BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<16>, sdsl::rank_support_s18<1,16>, sdsl::select_support_s18<1,16>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<32>, sdsl::rank_support_s18<1,32>, sdsl::select_support_s18<1,32>)->DenseRange(0,2,1);
 BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<64>, sdsl::rank_support_s18<1,64>, sdsl::select_support_s18<1,64>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<128>, sdsl::rank_support_s18<1,128>, sdsl::select_support_s18<1,128>)->DenseRange(0,2,1);
-BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<256>, sdsl::rank_support_s18<1,256>, sdsl::select_support_s18<1,256>)->DenseRange(0,2,1);
 
 template <class RRR, class RS, class SS>
 static void BM_successor_rrr(benchmark::State& state) {

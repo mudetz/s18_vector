@@ -20,33 +20,70 @@
 #include <sdsl/rrr_vector.hpp>
 #include <sdsl/sd_vector.hpp>
 #include "s18_vector.hpp"
+#include "s9_vector.hpp"
 
-#define SIZE 100
+#define SIZE 10000000
 
 int main(void)
 {
-	sdsl::bit_vector b = sdsl::bit_vector(SIZE, 0);
+	double constexpr T[] = {.95, .5, .05};
 
-	std::random_device g;
-	std::geometric_distribution<uint32_t> d(.6);
+	for (size_t t = 0; t < 3; t++) {
+		sdsl::bit_vector b = sdsl::bit_vector(SIZE, 0);
 
-	size_t i = d(g) + 1;
-	while (i < b.size()) {
-		b[i] = 1;
-		i += d(g) + 1;
+		std::random_device g;
+		std::geometric_distribution<uint32_t> d(T[t]);
+
+		size_t i = d(g) + 1;
+		while (i < b.size()) {
+			b[i] = 1;
+			i += d(g) + 1;
+		}
+
+		sdsl::s9_vector<8> s9_8(b);
+		sdsl::s9_vector<16> s9_16(b);
+		sdsl::s9_vector<32> s9_32(b);
+		sdsl::s9_vector<64> s9_64(b);
+		sdsl::s9_vector<128> s9_128(b);
+		sdsl::s9_vector<256> s9_256(b);
+
+		sdsl::s18_vector<1> s18_1(b);
+		sdsl::s18_vector<2> s18_2(b);
+		sdsl::s18_vector<4> s18_4(b);
+		sdsl::s18_vector<8> s18_8(b);
+
+		sdsl::rrr_vector<8>   rrr_8(b);
+		sdsl::rrr_vector<16>  rrr_16(b);
+		sdsl::rrr_vector<32>  rrr_32(b);
+		sdsl::rrr_vector<64>  rrr_64(b);
+		sdsl::rrr_vector<128> rrr_128(b);
+		sdsl::rrr_vector<256> rrr_256(b);
+
+		sdsl::sd_vector sd_1(b);
+
+		std::cout << "CASE " << t << std::endl;
+
+		std::cout << "bit_vector"      << "\t" << size_in_bytes(b)       << std::endl;
+		std::cout << "s9_vector<8>"    << "\t" << size_in_bytes(s9_8)    << std::endl;
+		std::cout << "s9_vector<16>"   << "\t" << size_in_bytes(s9_16)   << std::endl;
+		std::cout << "s9_vector<32>"   << "\t" << size_in_bytes(s9_32)   << std::endl;
+		std::cout << "s9_vector<64>"   << "\t" << size_in_bytes(s9_64)   << std::endl;
+		std::cout << "s9_vector<128>"  << "\t" << size_in_bytes(s9_128)  << std::endl;
+		std::cout << "s9_vector<256>"  << "\t" << size_in_bytes(s9_256)  << std::endl;
+		std::cout << "s18_vector<1>"   << "\t" << size_in_bytes(s18_1)   << std::endl;
+		std::cout << "s18_vector<2>"   << "\t" << size_in_bytes(s18_2)   << std::endl;
+		std::cout << "s18_vector<4>"   << "\t" << size_in_bytes(s18_4)   << std::endl;
+		std::cout << "s18_vector<8>"   << "\t" << size_in_bytes(s18_8)   << std::endl;
+		std::cout << "rrr_vector<8>"   << "\t" << size_in_bytes(rrr_8)   << std::endl;
+		std::cout << "rrr_vector<16>"  << "\t" << size_in_bytes(rrr_16)  << std::endl;
+		std::cout << "rrr_vector<32>"  << "\t" << size_in_bytes(rrr_32)  << std::endl;
+		std::cout << "rrr_vector<64>"  << "\t" << size_in_bytes(rrr_64)  << std::endl;
+		std::cout << "rrr_vector<128>" << "\t" << size_in_bytes(rrr_128) << std::endl;
+		std::cout << "rrr_vector<256>" << "\t" << size_in_bytes(rrr_256) << std::endl;
+		std::cout << "sd_vector<>"     << "\t" << size_in_bytes(sd_1)    << std::endl;
+
+		std::cout << std::endl;
 	}
-
-	sdsl::s18_vector<1> s18(b);
-	sdsl::rank_support_s18<1,1> rs18(s18);
-	sdsl::rank_support_v rs(&b);
-
-	for (size_t i = 0; i < SIZE; i++)
-		std::cout << rs(i) << "," << std::flush;
-	std::cout << std::endl;
-
-	for (size_t i = 0; i < SIZE; i++)
-		std::cout << rs18(i) << "," << std::flush;
-	std::cout << std::endl;
 
 	return 0;
 }

@@ -296,6 +296,11 @@ class s18_vector
 		friend class rank_support_s18<1, b_s>;
 		friend class select_support_s18<0, b_s>;
 		friend class select_support_s18<1, b_s>;
+
+		typedef typename vector_type::iterator       iterator_type;
+		typedef typename vector_type::const_iterator const_iterator_type;
+		typedef typename vector_type::size_type    size_type;
+
 	private:
 		size_t         m_ones;        // 1 bits in original sequence
 		size_t         m_size;        // Lenth of original bit vector
@@ -303,9 +308,6 @@ class s18_vector
 		int_vector<32> s18_seq;       // Vector of S18 words
 		vector_type    idx_bits;      // Total bits before block
 		vector_type    idx_ones;      // Total 1 bits before block
-
-		typedef typename vector_type::iterator       iterator_type;
-		typedef typename vector_type::const_iterator const_iterator_type;
 
 	public:
 		/* Default constructor */

@@ -30,7 +30,7 @@ OBJECTS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
 
 # Compiler options
 CXX ?= /usr/bin/g++
-CPPFLAGS = $(addprefix -I, $(HEADDIR)) -isystem../sdsl/build/include -MMD -MP
+CPPFLAGS = $(addprefix -I, $(HEADDIR)) -isystem../sdsl/build/include -isystem../s9/include/sdsl -MMD -MP
 CFLAGS = -O9 -std=gnu++17 -Wall -Weffc++ -Wextra \
 	-Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion \
 	-Wdisabled-optimization -Wfloat-equal -Wformat -Wformat=2 \
