@@ -23,6 +23,7 @@
 #include <iterator>
 
 #include <sdsl/int_vector.hpp>
+#include <sdsl/vlc_vector.hpp>
 #include <sdsl/util.hpp>
 
 #include "constants.hpp"
@@ -162,7 +163,7 @@ class s18_word
 			if (chunk_size == 1 and leading_1s)
 				return (value = CASE16 | leading_1s);
 			if (chunk_size == 1 and pending_gaps.size())
-				return (value = CASE16 | (uint32_t)pending_gaps.size());
+				return (value = CASE16 | static_cast<uint32_t>(pending_gaps.size()));
 
 			for (uint32_t gap : pending_gaps) {
 				value <<= chunk_size;
@@ -299,17 +300,17 @@ class s18_vector
 
 		typedef typename vector_type::iterator       iterator_type;
 		typedef typename vector_type::const_iterator const_iterator_type;
-		typedef typename vector_type::size_type    size_type;
+		typedef typename vector_type::size_type      size_type;
 
 	private:
 		size_t         m_ones;        // 1 bits in original sequence
 		size_t         m_size;        // Lenth of original bit vector
 		size_t         s18_seq_size;  // Count of S18 words
 		int_vector<32> s18_seq;       // Vector of S18 words
-		vector_type    idx_bits;      // Total bits before block
-		vector_type    idx_ones;      // Total 1 bits before block
-		vector_type    l2_bits;
-		vector_type    l2_ones;
+		int_vector<>    idx_bits;      // Total bits before block
+		int_vector<>    idx_ones;      // Total 1 bits before block
+		int_vector<>    l2_bits;
+		int_vector<>    l2_ones;
 		size_t         l2_bits_div;
 		size_t         l2_ones_div;
 
@@ -361,7 +362,7 @@ class s18_vector
 				gaps[i] = absp[i] - absp[i - 1];
 			gaps[0] = absp[0] + 1;
 
-			/* Indices indexes */
+			/* Indexes indices */
 			size_t size_idx_bits = 1;
 			size_t size_idx_ones = 1;
 
@@ -398,6 +399,11 @@ class s18_vector
 				auto it = std::upper_bound(idx_ones.begin(), idx_ones.end(), i * l2_ones_div);
 				l2_ones[i] = static_cast<uint32_t>(std::distance(idx_ones.begin(), it));
 			}
+
+			util::bit_compress(idx_bits);
+			util::bit_compress(idx_ones);
+			util::bit_compress(l2_bits);
+			util::bit_compress(l2_ones);
 		} /* end s18_vector::s18_vector */
 
 		size_t size(void) const
@@ -410,7 +416,7 @@ class s18_vector
 			return find_block_nth(
 				s18_seq.begin(),
 				s18_seq.end(),
-				(uint32_t)key
+				static_cast<uint32_t>(key)
 			);
 		}
 
@@ -421,7 +427,7 @@ class s18_vector
 			return find_block_nth(
 				s18_seq.begin() + start,
 				s18_seq.end(),
-				(uint32_t)key - idx_bits[position_in_idx_for_unpack]
+				static_cast<uint32_t>(key) - static_cast<uint32_t>(idx_bits[position_in_idx_for_unpack])
 			);
 		}
 
@@ -535,7 +541,7 @@ class rank_support_s18
 			return bv.idx_ones[position_in_idx_for_unpack] + find_block_nth(
 				bv.s18_seq.begin() + start,
 				bv.s18_seq.end(),
-				(uint32_t)key - bv.idx_bits[position_in_idx_for_unpack]
+				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_bits[position_in_idx_for_unpack])
 			);
 		}
 
@@ -599,7 +605,7 @@ class select_support_s18
 			return bv.idx_bits[position_in_idx_for_unpack] + partial_sum(
 				bv.s18_seq.begin() + start,
 				bv.s18_seq.end(),
-				(uint32_t)key - bv.idx_ones[position_in_idx_for_unpack]
+				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_ones[position_in_idx_for_unpack])
 			);
 		}
 
