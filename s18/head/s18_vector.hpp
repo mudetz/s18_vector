@@ -308,6 +308,10 @@ class s18_vector
 		int_vector<32> s18_seq;       // Vector of S18 words
 		vector_type    idx_bits;      // Total bits before block
 		vector_type    idx_ones;      // Total 1 bits before block
+		vector_type    l2_bits;
+		vector_type    l2_ones;
+		size_t         l2_bits_div;
+		size_t         l2_ones_div;
 
 	public:
 		/* Default constructor */
@@ -321,6 +325,10 @@ class s18_vector
 			, s18_seq(other.s18_seq)
 			, idx_bits(other.idx_bits)
 			, idx_ones(other.idx_ones)
+			, l2_bits(other.l2_bits)
+			, l2_ones(other.l2_ones)
+			, l2_bits_div(other.l2_bits_div)
+			, l2_ones_div(other.l2_ones_div)
 		{} /* end s18_vector::s18_vector */
 
 		/* Move constructor */
@@ -337,6 +345,10 @@ class s18_vector
 			, s18_seq(m_ones, 0)
 			, idx_bits(m_ones / b_s + 2, 0)
 			, idx_ones(m_ones / b_s + 2, 0)
+			, l2_bits(0, 0)
+			, l2_ones(0, 0)
+			, l2_bits_div(1)
+			, l2_ones_div(1)
 		{
 			/* Get absolute positions */
 			vector_type absp = vector_type(m_ones, 0);
@@ -370,6 +382,22 @@ class s18_vector
 			s18_seq.resize(s18_seq_size);
 			idx_bits.resize(size_idx_bits);
 			idx_ones.resize(size_idx_ones);
+
+			/* Build L2 index */
+			l2_bits.resize(size_idx_bits);
+			l2_ones.resize(size_idx_bits);
+
+			l2_bits_div = m_size / size_idx_bits + (m_size % size_idx_bits != 0);
+			for (size_t i = 0; i < size_idx_bits; i++) {
+				auto it = std::upper_bound(idx_bits.begin(), idx_bits.end(), i * l2_bits_div);
+				l2_bits[i] = static_cast<uint32_t>(std::distance(idx_bits.begin(), it));
+			}
+
+			l2_ones_div = (m_ones + 1) / size_idx_bits + ((m_ones + 1) % size_idx_bits != 0);
+			for (size_t i = 0; i < size_idx_bits; i++) {
+				auto it = std::upper_bound(idx_ones.begin(), idx_ones.end(), i * l2_ones_div);
+				l2_ones[i] = static_cast<uint32_t>(std::distance(idx_ones.begin(), it));
+			}
 		} /* end s18_vector::s18_vector */
 
 		size_t size(void) const
@@ -388,14 +416,12 @@ class s18_vector
 
 		uint32_t operator[](size_t const key) const
 		{
-			auto block_to_unpack = std::upper_bound(idx_bits.begin(), idx_bits.end(), key);
-			size_t position_in_idx_for_unpack = std::distance(idx_bits.begin(), block_to_unpack) - 1;
+			size_t position_in_idx_for_unpack = l2_bits[key / l2_bits_div] - 1;
 			size_t start = position_in_idx_for_unpack * b_s;
-
 			return find_block_nth(
 				s18_seq.begin() + start,
 				s18_seq.end(),
-				(uint32_t)key - *(block_to_unpack - 1)
+				(uint32_t)key - idx_bits[position_in_idx_for_unpack]
 			);
 		}
 
@@ -412,10 +438,14 @@ class s18_vector
 			written_bytes += write_member(m_ones, out, child, "m_ones");
 			written_bytes += write_member(m_size, out, child, "m_size");
 			written_bytes += write_member(s18_seq_size, out, child, "s18_seq_size");
+			written_bytes += write_member(l2_bits_div, out, child, "l2_bits_div");
+			written_bytes += write_member(l2_ones_div, out, child, "l2_ones_div");
 
 			written_bytes += s18_seq.serialize(out, child, "s18_seq");
 			written_bytes += idx_bits.serialize(out, child, "idx_bits");
 			written_bytes += idx_ones.serialize(out, child, "idx_ones");
+			written_bytes += l2_bits.serialize(out, child, "l2_bits");
+			written_bytes += l2_ones.serialize(out, child, "l2_ones");
 
 			structure_tree::add_size(child, written_bytes);
 
@@ -500,11 +530,8 @@ class rank_support_s18
 
 		size_t rank1(size_t const key) const
 		{
-			auto block_to_unpack = std::upper_bound(bv.idx_bits.begin(), bv.idx_bits.end(), key);
-			size_t position_in_idx_for_unpack = std::distance(bv.idx_bits.begin(), block_to_unpack) - 1;
-
+			size_t position_in_idx_for_unpack = bv.l2_bits[key / bv.l2_bits_div] - 1;
 			size_t start = b_s * position_in_idx_for_unpack;
-
 			return bv.idx_ones[position_in_idx_for_unpack] + find_block_nth(
 				bv.s18_seq.begin() + start,
 				bv.s18_seq.end(),
@@ -567,11 +594,8 @@ class select_support_s18
 
 		size_t select1(size_t const key) const
 		{
-			auto block_to_unpack = std::upper_bound(bv.idx_ones.begin(), bv.idx_ones.end(), key);
-			size_t position_in_idx_for_unpack = std::distance(bv.idx_ones.begin(), block_to_unpack) - 1;
-
+			size_t position_in_idx_for_unpack = bv.l2_ones[key / bv.l2_ones_div] - 1;
 			size_t start = b_s * position_in_idx_for_unpack;
-
 			return bv.idx_bits[position_in_idx_for_unpack] + partial_sum(
 				bv.s18_seq.begin() + start,
 				bv.s18_seq.end(),
