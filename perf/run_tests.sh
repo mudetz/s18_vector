@@ -11,3 +11,8 @@
 ./build/perf-suite --benchmark_filter='BM_select.*/0'
 ./build/perf-suite --benchmark_filter='BM_select.*/1'
 ./build/perf-suite --benchmark_filter='BM_select.*/2'
+
+./build/perf-suite --benchmark_filter='BM_successor.*/0'
+./build/perf-suite --benchmark_filter='BM_successor.*/1'
+./build/perf-suite --benchmark_filter='BM_successor.*/2'
+

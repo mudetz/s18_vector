@@ -405,4 +405,141 @@ static void BM_select_sd(benchmark::State& state) {
 }
 BENCHMARK_TEMPLATE(BM_select_sd, sdsl::sd_vector<>, sdsl::select_support_sd<1>)->DenseRange(0,2,1);
 
+
+/*
+ * SUCCESSOR
+ */
+template <class BV, class RS, class SS>
+static void BM_successor_bv(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	BV bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	RS rs(&bv);
+	SS ss(&bv);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		ss(rs(idx(g)) + 1);
+
+	benchmark::DoNotOptimize(bv.data());
+}
+BENCHMARK_TEMPLATE(BM_successor_bv, sdsl::bit_vector, sdsl::rank_support_v<1>, sdsl::select_support_mcl<1>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_bv, sdsl::bit_vector, sdsl::rank_support_v5<1>, sdsl::select_support_mcl<1>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_bv, sdsl::bit_vector, sdsl::rank_support_scan<1>, sdsl::select_support_mcl<1>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_bv, sdsl::bit_vector, sdsl::rank_support_scan<1>, sdsl::select_support_scan<1>)->DenseRange(0,2,1);
+
+template <class S9V, class RS, class SS>
+static void BM_successor_s9(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	S9V s9(bv);
+	RS rs(&s9);
+	SS ss(&s9);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		ss(rs(idx(g)) + 1);
+
+	benchmark::DoNotOptimize(s9.get_seq());
+}
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>, sdsl::select_support_s9<1,8>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>, sdsl::select_support_s9<1,16>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<32>, sdsl::rank_support_s9<1,32>, sdsl::select_support_s9<1,32>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>, sdsl::select_support_s9<1,64>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>, sdsl::select_support_s9<1,128>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>, sdsl::select_support_s9<1,256>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>, sdsl::select_support_s9<1,512>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<1024>, sdsl::rank_support_s9<1,1024>, sdsl::select_support_s9<1,1024>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s9, sdsl::s9_vector<2048>, sdsl::rank_support_s9<1,2048>, sdsl::select_support_s9<1,2048>)->DenseRange(0,2,1);
+
+template <class S18V, class RS, class SS>
+static void BM_successor_s18(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	S18V s18(bv);
+	RS rs(s18);
+	SS ss(s18);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		ss(rs(idx(g)) + 1);
+
+	benchmark::DoNotOptimize(s18.data());
+}
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<1>, sdsl::rank_support_s18<1,1>, sdsl::select_support_s18<1,1>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<2>, sdsl::rank_support_s18<1,2>, sdsl::select_support_s18<1,2>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<4>, sdsl::rank_support_s18<1,4>, sdsl::select_support_s18<1,4>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<8>, sdsl::rank_support_s18<1,8>, sdsl::select_support_s18<1,8>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<16>, sdsl::rank_support_s18<1,16>, sdsl::select_support_s18<1,16>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<32>, sdsl::rank_support_s18<1,32>, sdsl::select_support_s18<1,32>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<64>, sdsl::rank_support_s18<1,64>, sdsl::select_support_s18<1,64>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<128>, sdsl::rank_support_s18<1,128>, sdsl::select_support_s18<1,128>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_s18, sdsl::s18_vector<256>, sdsl::rank_support_s18<1,256>, sdsl::select_support_s18<1,256>)->DenseRange(0,2,1);
+
+template <class RRR, class RS, class SS>
+static void BM_successor_rrr(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	RRR rrr(bv);
+	RS rs(&rrr);
+	SS ss(&rrr);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		ss(rs(idx(g)) + 1);
+
+	benchmark::DoNotOptimize(rrr.begin());
+}
+BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<8>, sdsl::rank_support_rrr<1,8>, sdsl::select_support_rrr<1,8>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<16>, sdsl::rank_support_rrr<1,16>, sdsl::select_support_rrr<1,16>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<32>, sdsl::rank_support_rrr<1,32>, sdsl::select_support_rrr<1,32>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<64>, sdsl::rank_support_rrr<1,64>, sdsl::select_support_rrr<1,64>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<128>, sdsl::rank_support_rrr<1,128>, sdsl::select_support_rrr<1,128>)->DenseRange(0,2,1);
+BENCHMARK_TEMPLATE(BM_successor_rrr, sdsl::rrr_vector<256>, sdsl::rank_support_rrr<1,256>, sdsl::select_support_rrr<1,256>)->DenseRange(0,2,1);
+
+template <class SD, class RS, class SS>
+static void BM_successor_sd(benchmark::State& state) {
+	std::random_device g;
+	std::geometric_distribution<uint32_t> d(DENSITY[state.range(0)]);
+	sdsl::bit_vector bv = sdsl::bit_vector(SIZE, 0);
+	size_t i = d(g) + 1;
+	while (i < bv.size()) {
+		bv[i] = 1;
+		i += d(g) + 1;
+	}
+
+	SD sd(bv);
+	RS rs(&sd);
+	SS ss(&sd);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		ss(rs(idx(g)) + 1);
+
+	benchmark::DoNotOptimize(sd.begin());
+}
+BENCHMARK_TEMPLATE(BM_successor_sd, sdsl::sd_vector<>, sdsl::rank_support_sd<1>, sdsl::select_support_sd<1>)->DenseRange(0,2,1);
+
 BENCHMARK_MAIN();
