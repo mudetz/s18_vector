@@ -93,32 +93,6 @@ class s18_word
 		{}
 
 	public:
-		std::pair<uint32_t, uint32_t> split(void) const
-		{
-			switch (value & MASK_HEADER4) {
-				case CASE01: return std::make_pair(CASE01, (value & MASK_BODY4));
-				case CASE02: return std::make_pair(CASE02, (value & MASK_BODY4));
-				case CASE03: return std::make_pair(CASE03, (value & MASK_BODY4));
-				case CASE04: return std::make_pair(CASE04, (value & MASK_BODY4));
-				case CASE05: return std::make_pair(CASE05, (value & MASK_BODY4));
-				case CASE06: return std::make_pair(CASE06, (value & MASK_BODY4));
-				case CASE07: return std::make_pair(CASE07, (value & MASK_BODY4));
-				case CASE08: return std::make_pair(CASE08, (value & MASK_BODY4));
-				case CASE09: return std::make_pair(CASE09, (value & MASK_BODY4));
-				case CASE10: return std::make_pair(CASE10, (value & MASK_BODY4));
-				case CASE11: return std::make_pair(CASE11, (value & MASK_BODY4));
-				case CASE12: return std::make_pair(CASE12, (value & MASK_BODY4));
-				case CASE13: return std::make_pair(CASE13, (value & MASK_BODY4));
-				case CASE14: return std::make_pair(CASE14, (value & MASK_BODY4));
-				case CASE15: return std::make_pair(CASE15, (value & MASK_BODY4));
-				default: switch (value & MASK_HEADER5) {
-					case CASE16: return std::make_pair(CASE16, (value & MASK_BODY5));
-					case CASE17: return std::make_pair(CASE17, (value & MASK_BODY5));
-					default: throw std::invalid_argument("s18_word::split: Invalid case");
-				}
-			}
-		}
-
 		std::tuple<uint32_t, uint32_t, uint32_t> metadata(void) const
 		{
 			// Return leading 1s, case as int and len w/o leading ones
@@ -141,104 +115,15 @@ class s18_word
 				default: switch (value & MASK_HEADER5) {
 					case CASE16: return std::make_tuple(15, (value & MASK_BODY5), 0);
 					case CASE17: return std::make_tuple(16, 0, CHUNKS_CASE17);
-					default: throw std::invalid_argument("s18_word::split: Invalid case");
+					default: throw std::invalid_argument("s18_word::metadata: Invalid case");
 				}
 			}
 		}
 
-		uint32_t header(void) const { return split().first; }
-		uint32_t body(void) const { return split().second; }
-
-		size_t size(void) const {
-			switch (value & MASK_HEADER4) {
-				case CASE01: return CHUNKS_CASE01;
-				case CASE02: return CHUNKS_CASE02;
-				case CASE03: return CHUNKS_CASE03;
-				case CASE04: return CHUNKS_CASE04;
-				case CASE05: return CHUNKS_CASE05;
-				case CASE06: return CHUNKS_CASE06;
-				case CASE07: return CHUNKS_CASE07;
-				case CASE08: return CHUNKS_CASE08 + 28;
-				case CASE09: return CHUNKS_CASE09 + 28;
-				case CASE10: return CHUNKS_CASE10 + 28;
-				case CASE11: return CHUNKS_CASE11 + 28;
-				case CASE12: return CHUNKS_CASE12 + 28;
-				case CASE13: return CHUNKS_CASE13 + 28;
-				case CASE14: return CHUNKS_CASE14 + 28;
-				case CASE15: return CHUNKS_CASE15 + 28;
-				default: switch (value & MASK_HEADER5) {
-					case CASE16: return value & MASK_BODY5;
-					case CASE17: return CHUNKS_CASE17;
-					default: throw std::invalid_argument("s18_word::size: Invalid case");
-				}
-			}
-		}
-
-		uint32_t operator[](size_t key) const
-		{
-			switch (value & MASK_HEADER4) {
-				case CASE01: return (value & (MASK_CASE01_CHUNK >> (key * BITS_CASE01))) >> (BITS_CASE01 * (CHUNKS_CASE01 - key - 1));
-				case CASE02: return (value & (MASK_CASE02_CHUNK >> (key * BITS_CASE02))) >> (BITS_CASE02 * (CHUNKS_CASE02 - key - 1));
-				case CASE03: return (value & (MASK_CASE03_CHUNK >> (key * BITS_CASE03))) >> (BITS_CASE03 * (CHUNKS_CASE03 - key - 1));
-				case CASE04: return (value & (MASK_CASE04_CHUNK >> (key * BITS_CASE04))) >> (BITS_CASE04 * (CHUNKS_CASE04 - key - 1));
-				case CASE05: return (value & (MASK_CASE05_CHUNK >> (key * BITS_CASE05))) >> (BITS_CASE05 * (CHUNKS_CASE05 - key - 1));
-				case CASE06: return (value & (MASK_CASE06_CHUNK >> (key * BITS_CASE06))) >> (BITS_CASE06 * (CHUNKS_CASE06 - key - 1));
-				case CASE07: return (value & (MASK_CASE07_CHUNK >> (key * BITS_CASE07))) >> (BITS_CASE07 * (CHUNKS_CASE07 - key - 1));
-				case CASE08: return key < 28 ? 1 : (value & (MASK_CASE08_CHUNK >> ((key - 28) * BITS_CASE08))) >> (BITS_CASE08 * (CHUNKS_CASE08 - (key - 28) - 1));
-				case CASE09: return key < 28 ? 1 : (value & (MASK_CASE09_CHUNK >> ((key - 28) * BITS_CASE09))) >> (BITS_CASE09 * (CHUNKS_CASE09 - (key - 28) - 1));
-				case CASE10: return key < 28 ? 1 : (value & (MASK_CASE10_CHUNK >> ((key - 28) * BITS_CASE10))) >> (BITS_CASE10 * (CHUNKS_CASE10 - (key - 28) - 1));
-				case CASE11: return key < 28 ? 1 : (value & (MASK_CASE11_CHUNK >> ((key - 28) * BITS_CASE11))) >> (BITS_CASE11 * (CHUNKS_CASE11 - (key - 28) - 1));
-				case CASE12: return key < 28 ? 1 : (value & (MASK_CASE12_CHUNK >> ((key - 28) * BITS_CASE12))) >> (BITS_CASE12 * (CHUNKS_CASE12 - (key - 28) - 1));
-				case CASE13: return key < 28 ? 1 : (value & (MASK_CASE13_CHUNK >> ((key - 28) * BITS_CASE13))) >> (BITS_CASE13 * (CHUNKS_CASE13 - (key - 28) - 1));
-				case CASE14: return key < 28 ? 1 : (value & (MASK_CASE14_CHUNK >> ((key - 28) * BITS_CASE14))) >> (BITS_CASE14 * (CHUNKS_CASE14 - (key - 28) - 1));
-				case CASE15: return key < 28 ? 1 : (value & (MASK_CASE15_CHUNK >> ((key - 28) * BITS_CASE15))) >> (BITS_CASE15 * (CHUNKS_CASE15 - (key - 28) - 1));
-				default: switch (value & MASK_HEADER5) {
-					case CASE16: return key < (value & MASK_CASE16_CHUNK);
-					case CASE17: return (value & (MASK_CASE17_CHUNK >> (key * BITS_CASE17))) >> (BITS_CASE17 * (CHUNKS_CASE17 - key - 1));
-					default: throw std::invalid_argument("s18_word::operator[]: Invalid case");
-				}
-			}
-		}
-
-		uint32_t access_fast(size_t key, size_t _case, bool special) const
-		{
-			if (_case == 15)
-				return key < (value & MASK_CASE16_CHUNK);
-			if (not special)
-				return (value & DECODER_MASK[_case][key]) >> DECODER_SHIFT[_case][key];
-			return key < 28 ? 1 : (value & DECODER_MASK[_case][key - 28]) >> DECODER_SHIFT[_case][key - 28];
-		}
-
-		uint32_t access_fast_v2(size_t key, size_t _case) const
+		uint32_t access_fast(size_t key, size_t _case) const
 		{
 			assert(_case != 15);
 			return (value & DECODER_MASK[_case][key]) >> DECODER_SHIFT[_case][key];
-		}
-
-		size_t to_case(void) const
-		{
-			switch (value & MASK_HEADER4) {
-				case CASE01: return  0;
-				case CASE02: return  1;
-				case CASE03: return  2;
-				case CASE04: return  3;
-				case CASE05: return  4;
-				case CASE06: return  5;
-				case CASE07: return  6;
-				case CASE08: return  7;
-				case CASE09: return  8;
-				case CASE10: return  9;
-				case CASE11: return 10;
-				case CASE12: return 11;
-				case CASE13: return 12;
-				case CASE14: return 13;
-				case CASE15: return 14;
-				default: switch (value & MASK_HEADER5) {
-					case CASE16: return 15;
-					case CASE17: return 16;
-					default: throw std::invalid_argument("s18_word::to_case[]: Invalid case");
-				}
-			}
 		}
 
 		bool add_if_enough_space(uint32_t gap)
@@ -301,6 +186,58 @@ class s18_word
 			return value;
 		}
 
+#if DEBUG
+		size_t size(void) const {
+			switch (value & MASK_HEADER4) {
+				case CASE01: return CHUNKS_CASE01;
+				case CASE02: return CHUNKS_CASE02;
+				case CASE03: return CHUNKS_CASE03;
+				case CASE04: return CHUNKS_CASE04;
+				case CASE05: return CHUNKS_CASE05;
+				case CASE06: return CHUNKS_CASE06;
+				case CASE07: return CHUNKS_CASE07;
+				case CASE08: return CHUNKS_CASE08 + 28;
+				case CASE09: return CHUNKS_CASE09 + 28;
+				case CASE10: return CHUNKS_CASE10 + 28;
+				case CASE11: return CHUNKS_CASE11 + 28;
+				case CASE12: return CHUNKS_CASE12 + 28;
+				case CASE13: return CHUNKS_CASE13 + 28;
+				case CASE14: return CHUNKS_CASE14 + 28;
+				case CASE15: return CHUNKS_CASE15 + 28;
+				default: switch (value & MASK_HEADER5) {
+					case CASE16: return value & MASK_BODY5;
+					case CASE17: return CHUNKS_CASE17;
+					default: throw std::invalid_argument("s18_word::size: Invalid case");
+				}
+			}
+		}
+
+		uint32_t operator[](size_t key) const
+		{
+			switch (value & MASK_HEADER4) {
+				case CASE01: return (value & (MASK_CASE01_CHUNK >> (key * BITS_CASE01))) >> (BITS_CASE01 * (CHUNKS_CASE01 - key - 1));
+				case CASE02: return (value & (MASK_CASE02_CHUNK >> (key * BITS_CASE02))) >> (BITS_CASE02 * (CHUNKS_CASE02 - key - 1));
+				case CASE03: return (value & (MASK_CASE03_CHUNK >> (key * BITS_CASE03))) >> (BITS_CASE03 * (CHUNKS_CASE03 - key - 1));
+				case CASE04: return (value & (MASK_CASE04_CHUNK >> (key * BITS_CASE04))) >> (BITS_CASE04 * (CHUNKS_CASE04 - key - 1));
+				case CASE05: return (value & (MASK_CASE05_CHUNK >> (key * BITS_CASE05))) >> (BITS_CASE05 * (CHUNKS_CASE05 - key - 1));
+				case CASE06: return (value & (MASK_CASE06_CHUNK >> (key * BITS_CASE06))) >> (BITS_CASE06 * (CHUNKS_CASE06 - key - 1));
+				case CASE07: return (value & (MASK_CASE07_CHUNK >> (key * BITS_CASE07))) >> (BITS_CASE07 * (CHUNKS_CASE07 - key - 1));
+				case CASE08: return key < 28 ? 1 : (value & (MASK_CASE08_CHUNK >> ((key - 28) * BITS_CASE08))) >> (BITS_CASE08 * (CHUNKS_CASE08 - (key - 28) - 1));
+				case CASE09: return key < 28 ? 1 : (value & (MASK_CASE09_CHUNK >> ((key - 28) * BITS_CASE09))) >> (BITS_CASE09 * (CHUNKS_CASE09 - (key - 28) - 1));
+				case CASE10: return key < 28 ? 1 : (value & (MASK_CASE10_CHUNK >> ((key - 28) * BITS_CASE10))) >> (BITS_CASE10 * (CHUNKS_CASE10 - (key - 28) - 1));
+				case CASE11: return key < 28 ? 1 : (value & (MASK_CASE11_CHUNK >> ((key - 28) * BITS_CASE11))) >> (BITS_CASE11 * (CHUNKS_CASE11 - (key - 28) - 1));
+				case CASE12: return key < 28 ? 1 : (value & (MASK_CASE12_CHUNK >> ((key - 28) * BITS_CASE12))) >> (BITS_CASE12 * (CHUNKS_CASE12 - (key - 28) - 1));
+				case CASE13: return key < 28 ? 1 : (value & (MASK_CASE13_CHUNK >> ((key - 28) * BITS_CASE13))) >> (BITS_CASE13 * (CHUNKS_CASE13 - (key - 28) - 1));
+				case CASE14: return key < 28 ? 1 : (value & (MASK_CASE14_CHUNK >> ((key - 28) * BITS_CASE14))) >> (BITS_CASE14 * (CHUNKS_CASE14 - (key - 28) - 1));
+				case CASE15: return key < 28 ? 1 : (value & (MASK_CASE15_CHUNK >> ((key - 28) * BITS_CASE15))) >> (BITS_CASE15 * (CHUNKS_CASE15 - (key - 28) - 1));
+				default: switch (value & MASK_HEADER5) {
+					case CASE16: return key < (value & MASK_CASE16_CHUNK);
+					case CASE17: return (value & (MASK_CASE17_CHUNK >> (key * BITS_CASE17))) >> (BITS_CASE17 * (CHUNKS_CASE17 - key - 1));
+					default: throw std::invalid_argument("s18_word::operator[]: Invalid case");
+				}
+			}
+		}
+#endif
 };
 
 size_t const s18_word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
@@ -464,6 +401,25 @@ class s18_vector
 		{
 			return s18_seq;
 		}
+
+		size_t serialize(std::ostream& out, structure_tree_node* v=nullptr, std::string name="") const
+		{
+			structure_tree_node* child = structure_tree::add_child(v, name, util::class_name(*this));
+
+			size_t written_bytes = 0;
+			written_bytes += write_member(m_ones, out, child, "m_ones");
+			written_bytes += write_member(m_size, out, child, "m_size");
+			written_bytes += write_member(s18_seq_size, out, child, "s18_seq_size");
+
+			written_bytes += s18_seq.serialize(out, child, "s18_seq");
+			written_bytes += idx_bits.serialize(out, child, "idx_bits");
+			written_bytes += idx_ones.serialize(out, child, "idx_ones");
+
+			structure_tree::add_size(child, written_bytes);
+
+			return written_bytes;
+		}
+
 	private:
 		uint32_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
 		{
@@ -478,7 +434,7 @@ class s18_vector
 					return 1;
 
 				for (size_t i = 0; i < len; i++) {
-					uint32_t wi = word.access_fast_v2(i, _case);
+					uint32_t wi = word.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -488,14 +444,6 @@ class s18_vector
 			}
 
 			return 0;
-		}
-
-		inline void pack_block(const_iterator_type const begin, const_iterator_type const end)
-		{
-			/* Pointer to gaps */
-			const_iterator_type gaps = begin;
-			while (std::distance(gaps, end) > 0)
-				gaps = pack_word(gaps, end);
 		}
 
 		inline const_iterator_type pack_word(const_iterator_type const begin, const_iterator_type const end)
@@ -570,12 +518,15 @@ class rank_support_s18
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				s18_word word(*gaps);
-				size_t len = word.size();
-				size_t _case = word.to_case();
-				bool special = 7 <= _case and _case <= 14;
+				auto const [_case, leading_1s, len] = word.metadata();
+
+				for (size_t i = 0; i < leading_1s; i++, one_cnt++) {
+					accum += 1;
+					if (accum >= target_accum) return one_cnt;
+				}
 
 				for (size_t i = 0; i < len; i++, one_cnt++) {
-					uint32_t wi = word.access_fast(i, _case, special);
+					uint32_t wi = word.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -633,21 +584,21 @@ class select_support_s18
 
 			for (; std::distance(gaps, end) > 0 and counter; gaps++) {
 				s18_word word(*gaps);
-				size_t len = word.size();
-				size_t _case = word.to_case();
-				bool special = 7 <= _case and _case <= 14;
+				auto const [_case, leading_1s, len] = word.metadata();
+
+				accum += std::min(counter, leading_1s);
+				counter -= std::min(counter, leading_1s);
 
 				for (size_t i = 0; i < len and counter; i++, counter--) {
-					uint32_t wi = word.access_fast(i, _case, special);
+					uint32_t wi = word.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
-
 					accum += wi;
 				}
 			}
 
 #if DEBUG
 			if (counter)
-				throw std::runtime_error("select_support_s18::partial_sum: vector consumed before target counter");
+				throw std::runtime_error("select_support_s17::partial_sum: vector consumed before target counter");
 #endif
 			return accum;
 		}

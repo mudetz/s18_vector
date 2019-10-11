@@ -366,6 +366,7 @@ TEMPLATE_TEST_CASE_SIG("100 dense vectors are compressed correctly", "", ((uint1
 	}
 }
 
+
 sdsl::int_vector<> gap_vector_gen(size_t bits, size_t total, bool prepend_1s)
 {
 	/* Avoid OOMS */
