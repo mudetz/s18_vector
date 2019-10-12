@@ -2,6 +2,7 @@
 #include <sdsl/int_vector.hpp>
 #include <sdsl/rrr_vector.hpp>
 #include <sdsl/sd_vector.hpp>
+#include <sdsl/hyb_vector.hpp>
 #include <sdsl/util.hpp>
 #include "s18_vector.hpp"
 #include "s9_vector.hpp"
@@ -11,7 +12,7 @@
 
 sdsl::bit_vector &test_bv(int c)
 {
-	static double const DENSITY[] = {.97, .5, .05};
+	static double const DENSITY[] = {.95, .5, .05};
 	static bool done = false;
 	static sdsl::bit_vector bvs[] = {
 		sdsl::bit_vector(SIZE, 0),
@@ -132,6 +133,19 @@ static void BM_access_sd(benchmark::State& state) {
 }
 BENCHMARK_TEMPLATE(BM_access_sd, sdsl::sd_vector<>)->DenseRange(0,2,1);
 
+static void BM_access_hyb(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
+	std::random_device g;
+
+	sdsl::hyb_vector hv(bv);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		hv[idx(g)];
+
+	benchmark::DoNotOptimize(hv.begin());
+}
+BENCHMARK(BM_access_hyb)->DenseRange(0,2,1);
+
 
 /*
  * RANK
@@ -230,6 +244,20 @@ static void BM_rank_sd(benchmark::State& state) {
 	benchmark::DoNotOptimize(sd.begin());
 }
 BENCHMARK_TEMPLATE(BM_rank_sd, sdsl::sd_vector<>, sdsl::rank_support_sd<1>)->DenseRange(0,2,1);
+
+static void BM_rank_hyb(benchmark::State& state) {
+	sdsl::bit_vector &bv = test_bv(static_cast<int>(state.range(0)));
+	std::random_device g;
+
+	sdsl::hyb_vector hv(bv);
+	sdsl::rank_support_hyb<1> rs(&hv);
+	std::uniform_int_distribution<int> idx(0, SIZE - 1);
+	for (auto _ : state)
+		rs(idx(g));
+
+	benchmark::DoNotOptimize(hv.begin());
+}
+BENCHMARK(BM_rank_hyb)->DenseRange(0,2,1);
 
 
 /*
@@ -437,5 +465,7 @@ static void BM_successor_sd(benchmark::State& state) {
 	benchmark::DoNotOptimize(sd.begin());
 }
 BENCHMARK_TEMPLATE(BM_successor_sd, sdsl::sd_vector<>, sdsl::rank_support_sd<1>, sdsl::select_support_sd<1>)->DenseRange(0,2,1);
+
+
 
 BENCHMARK_MAIN();
