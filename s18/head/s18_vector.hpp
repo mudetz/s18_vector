@@ -1,5 +1,5 @@
 /*
- * s18_vector: An implementation for S18 compressed bitvectors
+ * vector: An implementation for S18 compressed bitvectors
  * Copyright (C) 2019  Manuel Weitzman
 
  * This program is free software: you can redistribute it and/or modify
@@ -31,34 +31,37 @@
 
 namespace sdsl
 {
+namespace s18
+{
+
 /*
  * Forward declarations
  */
 
 /* Access */
-template<uint16_t b_s = 256, typename vector_type = int_vector<32>>
-class access_support_s18;
+template<uint16_t b_s = 256, class vector_type = int_vector<32>>
+class access_support;
 
 /* Rank */
-template<uint8_t q = 1, uint16_t b_s = 256, typename vector_type = int_vector<32>>
-class rank_support_s18;
+template<uint8_t q = 1, uint16_t b_s = 256, class vector_type = int_vector<32>>
+class rank_support;
 
 /* Select */
-template<uint8_t q = 1, uint16_t b_s = 256, typename vector_type = int_vector<32>>
-class select_support_s18;
+template<uint8_t q = 1, uint16_t b_s = 256, class vector_type = int_vector<32>>
+class select_support;
 
 /* S18 word */
-class s18_word;
+class word;
 
 /* S18 vector */
-template<uint16_t b_s = 256, typename vector_type = int_vector<32>>
-class s18_vector;
+template<uint16_t b_s = 256, class vector_type = int_vector<32>>
+class vector;
 
 
 /*
  * S18 word
  */
-class s18_word
+class word
 {
 	private:
 		bool                  already_packed;
@@ -66,16 +69,16 @@ class s18_word
 		uint32_t              leading_1s;
 		std::vector<uint32_t> pending_gaps;
 
-		static size_t const BIT_PAD[33];
-		static size_t const BITS_TO_CHUNKS[29];
-		static size_t const DECODER_CHUNKS[17];
-		static size_t const DECODER_BITS[17];
+		static size_t const   BIT_PAD[33];
+		static size_t const   BITS_TO_CHUNKS[29];
+		static size_t const   DECODER_CHUNKS[17];
+		static size_t const   DECODER_BITS[17];
 		static uint32_t const DECODER_MASK[17][14];
 		static uint32_t const DECODER_SHIFT[17][14];
 	public:
 		uint32_t value;
 		size_t   chunk_size;
-		s18_word(void)
+		word(void)
 			: already_packed(false)
 			, processing_lead_1s(true)
 			, leading_1s(0)
@@ -84,12 +87,12 @@ class s18_word
 			, chunk_size(1)
 		{}
 
-		s18_word(uint32_t const word)
+		word(uint32_t const w)
 			: already_packed(true)
 			, processing_lead_1s(false)
 			, leading_1s(0)
 			, pending_gaps()
-			, value(word)
+			, value(w)
 			, chunk_size(0)
 		{}
 
@@ -116,7 +119,7 @@ class s18_word
 				default: switch (value & MASK_HEADER5) {
 					case CASE16: return std::make_tuple(15, (value & MASK_BODY5), 0);
 					case CASE17: return std::make_tuple(16, 0, CHUNKS_CASE17);
-					default: throw std::invalid_argument("s18_word::metadata: Invalid case");
+					default: throw std::invalid_argument("word::metadata: Invalid case");
 				}
 			}
 		}
@@ -181,7 +184,7 @@ class s18_word
 				case  3: value |= !leading_1s ? CASE06 : CASE13; break;
 				case  2: value |= !leading_1s ? CASE07 : CASE14; break;
 				case  5: value |= !leading_1s ? CASE17 : CASE15; break;
-				default: throw std::invalid_argument("s18_word::pack: Invalid case");
+				default: throw std::invalid_argument("word::pack: Invalid case");
 			}
 
 			return value;
@@ -208,7 +211,7 @@ class s18_word
 				default: switch (value & MASK_HEADER5) {
 					case CASE16: return value & MASK_BODY5;
 					case CASE17: return CHUNKS_CASE17;
-					default: throw std::invalid_argument("s18_word::size: Invalid case");
+					default: throw std::invalid_argument("word::size: Invalid case");
 				}
 			}
 		}
@@ -234,18 +237,18 @@ class s18_word
 				default: switch (value & MASK_HEADER5) {
 					case CASE16: return key < (value & MASK_CASE16_CHUNK);
 					case CASE17: return (value & (MASK_CASE17_CHUNK >> (key * BITS_CASE17))) >> (BITS_CASE17 * (CHUNKS_CASE17 - key - 1));
-					default: throw std::invalid_argument("s18_word::operator[]: Invalid case");
+					default: throw std::invalid_argument("word::operator[]: Invalid case");
 				}
 			}
 		}
 #endif
 };
 
-size_t const s18_word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
-size_t const s18_word::BITS_TO_CHUNKS[29] = { 0,28,14,9,7,5,0,4,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
-size_t const s18_word::DECODER_CHUNKS[17] = {1,2,3,4,7,9,14,1,2,3,4,7,9,14,5,0,5};
-size_t const s18_word::DECODER_BITS[17] = {28,14,9,7,4,3,2,28,14,9,7,4,3,2,5,0,5};
-uint32_t const s18_word::DECODER_MASK[17][14] = {
+size_t const word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
+size_t const word::BITS_TO_CHUNKS[29] = { 0,28,14,9,7,5,0,4,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+size_t const word::DECODER_CHUNKS[17] = {1,2,3,4,7,9,14,1,2,3,4,7,9,14,5,0,5};
+size_t const word::DECODER_BITS[17] = {28,14,9,7,4,3,2,28,14,9,7,4,3,2,5,0,5};
+uint32_t const word::DECODER_MASK[17][14] = {
 	{MASK_CASE01_CHUNK >> (0 * BITS_CASE01)},
 	{MASK_CASE02_CHUNK >> (0 * BITS_CASE02), MASK_CASE02_CHUNK >> (1 * BITS_CASE02)},
 	{MASK_CASE03_CHUNK >> (0 * BITS_CASE03), MASK_CASE03_CHUNK >> (1 * BITS_CASE03), MASK_CASE03_CHUNK >> (2 * BITS_CASE03)},
@@ -264,7 +267,7 @@ uint32_t const s18_word::DECODER_MASK[17][14] = {
 	{},
 	{MASK_CASE17_CHUNK >> (0 * BITS_CASE17), MASK_CASE17_CHUNK >> (1 * BITS_CASE17), MASK_CASE17_CHUNK >> (2 * BITS_CASE17), MASK_CASE17_CHUNK >> (3 * BITS_CASE17), MASK_CASE17_CHUNK >> (4 * BITS_CASE17)}
 };
-uint32_t const s18_word::DECODER_SHIFT[17][14] = {
+uint32_t const word::DECODER_SHIFT[17][14] = {
 	{0},
 	{14,0},
 	{18,9,0},
@@ -288,15 +291,15 @@ uint32_t const s18_word::DECODER_SHIFT[17][14] = {
 /*
  * S18 Vector
  */
-template<uint16_t b_s, typename vector_type>
-class s18_vector
+template<uint16_t b_s, class vector_type>
+class vector
 {
 	public:
-		friend class access_support_s18<b_s>;
-		friend class rank_support_s18<0, b_s>;
-		friend class rank_support_s18<1, b_s>;
-		friend class select_support_s18<0, b_s>;
-		friend class select_support_s18<1, b_s>;
+		friend class access_support<b_s>;
+		friend class rank_support<0, b_s>;
+		friend class rank_support<1, b_s>;
+		friend class select_support<0, b_s>;
+		friend class select_support<1, b_s>;
 
 		typedef typename vector_type::iterator       iterator_type;
 		typedef typename vector_type::const_iterator const_iterator_type;
@@ -307,19 +310,19 @@ class s18_vector
 		size_t         m_size;        // Lenth of original bit vector
 		size_t         s18_seq_size;  // Count of S18 words
 		int_vector<32> s18_seq;       // Vector of S18 words
-		int_vector<>    idx_bits;      // Total bits before block
-		int_vector<>    idx_ones;      // Total 1 bits before block
-		int_vector<>    l2_bits;
-		int_vector<>    l2_ones;
+		int_vector<>   idx_bits;      // Total bits before block
+		int_vector<>   idx_ones;      // Total 1 bits before block
+		int_vector<>   l2_bits;
+		int_vector<>   l2_ones;
 		size_t         l2_bits_div;
 		size_t         l2_ones_div;
 
 	public:
 		/* Default constructor */
-		s18_vector(void)=delete;
+		vector(void)=delete;
 
 		/* Copy constructor */
-		s18_vector(s18_vector const &other) /* copy */
+		vector(vector const &other) /* copy */
 			: m_ones(other.m_ones)
 			, m_size(other.m_size)
 			, s18_seq_size(other.s18_seq_size)
@@ -330,16 +333,16 @@ class s18_vector
 			, l2_ones(other.l2_ones)
 			, l2_bits_div(other.l2_bits_div)
 			, l2_ones_div(other.l2_ones_div)
-		{} /* end s18_vector::s18_vector */
+		{} /* end vector::vector */
 
 		/* Move constructor */
-		s18_vector(s18_vector const &&other) /* move */
+		vector(vector const &&other) /* move */
 		{
 			*this = std::move(other);
-		} /* end s18_vector::s18_vector */
+		} /* end vector::vector */
 
 		/* Constructor from bitvector */
-		s18_vector(bit_vector const &bv)
+		vector(bit_vector const &bv)
 			: m_ones(util::cnt_one_bits(bv))
 			, m_size(bv.size())
 			, s18_seq_size(0)
@@ -404,7 +407,7 @@ class s18_vector
 			util::bit_compress(idx_ones);
 			util::bit_compress(l2_bits);
 			util::bit_compress(l2_ones);
-		} /* end s18_vector::s18_vector */
+		} /* end vector::vector */
 
 		size_t size(void) const
 		{
@@ -422,12 +425,11 @@ class s18_vector
 
 		uint32_t operator[](size_t const key) const
 		{
-			size_t position_in_idx_for_unpack = l2_bits[key / l2_bits_div] - 1;
-			size_t start = position_in_idx_for_unpack * b_s;
+			uint32_t pos = static_cast<uint32_t>(l2_bits[key / l2_bits_div] - 1);
 			return find_block_nth(
-				s18_seq.begin() + start,
+				s18_seq.begin() + pos * b_s,
 				s18_seq.end(),
-				static_cast<uint32_t>(key) - static_cast<uint32_t>(idx_bits[position_in_idx_for_unpack])
+				static_cast<uint32_t>(key) - static_cast<uint32_t>(idx_bits[pos])
 			);
 		}
 
@@ -465,14 +467,14 @@ class s18_vector
 			uint32_t accum = -1;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
-				s18_word word(*gaps);
-				auto const [_case, leading_1s, len] = word.metadata();
+				word w(*gaps);
+				auto const [_case, leading_1s, len] = w.metadata();
 
 				if (leading_1s and (accum += leading_1s) >= target_accum)
 					return 1;
 
 				for (size_t i = 0; i < len; i++) {
-					uint32_t wi = word.access_fast(i, _case);
+					uint32_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -494,9 +496,9 @@ class s18_vector
 			const_iterator_type gaps = begin;
 
 			/* Create and pack word */
-			s18_word word = s18_word();
-			while (std::distance(gaps, end) > 0 and word.add_if_enough_space(*gaps)) gaps++;
-			s18_seq[s18_seq_size++] = word.pack();
+			word w = word();
+			while (std::distance(gaps, end) > 0 and w.add_if_enough_space(*gaps)) gaps++;
+			s18_seq[s18_seq_size++] = w.pack();
 
 			/* Return iterator to the very next compressable gap */
 			return gaps;
@@ -504,26 +506,26 @@ class s18_vector
 };
 
 
-template<uint16_t b_s, typename vector_type>
-class access_support_s18
+template<uint16_t b_s, class vector_type>
+class access_support
 {
 	private:
-		s18_vector<b_s, vector_type> const &bv;
+		vector<b_s, vector_type> const &bv;
 	public:
-		access_support_s18(void)=delete;
-		access_support_s18(s18_vector<b_s, vector_type> &cv)
+		access_support(void)=delete;
+		access_support(vector<b_s, vector_type> &cv)
 			: bv(cv)
 		{}
 		uint32_t operator()(size_t const key) const { return bv[key]; }
 
 };
 
-template<uint8_t q, uint16_t b_s, typename vector_type>
-class rank_support_s18
+template<uint8_t q, uint16_t b_s, class vector_type>
+class rank_support
 {
-	static_assert(q < 2, "rank_support_s18: bit pattern must be `0` or `1`");
+	static_assert(q < 2, "rank_support: bit pattern must be `0` or `1`");
 	private:
-		s18_vector<b_s, vector_type> const &bv;
+		vector<b_s, vector_type> const &bv;
 
 		typedef typename vector_type::iterator       iterator_type;
 		typedef typename vector_type::const_iterator const_iterator_type;
@@ -536,12 +538,11 @@ class rank_support_s18
 
 		size_t rank1(size_t const key) const
 		{
-			size_t position_in_idx_for_unpack = bv.l2_bits[key / bv.l2_bits_div] - 1;
-			size_t start = b_s * position_in_idx_for_unpack;
-			return bv.idx_ones[position_in_idx_for_unpack] + find_block_nth(
-				bv.s18_seq.begin() + start,
+			uint32_t pos = static_cast<uint32_t>(bv.l2_bits[key / bv.l2_bits_div] - 1);
+			return bv.idx_ones[pos] + find_block_nth(
+				bv.s18_seq.begin() + pos * b_s,
 				bv.s18_seq.end(),
-				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_bits[position_in_idx_for_unpack])
+				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_bits[pos])
 			);
 		}
 
@@ -552,8 +553,8 @@ class rank_support_s18
 			size_t one_cnt = 0;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
-				s18_word word(*gaps);
-				auto const [_case, leading_1s, len] = word.metadata();
+				word w(*gaps);
+				auto const [_case, leading_1s, len] = w.metadata();
 
 				for (size_t i = 0; i < leading_1s; i++, one_cnt++) {
 					accum += 1;
@@ -561,7 +562,7 @@ class rank_support_s18
 				}
 
 				for (size_t i = 0; i < len; i++, one_cnt++) {
-					uint32_t wi = word.access_fast(i, _case);
+					uint32_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -572,8 +573,8 @@ class rank_support_s18
 			return one_cnt;
 		}
 	public:
-		rank_support_s18(void)=delete;
-		rank_support_s18(s18_vector<b_s, vector_type> &cv)
+		rank_support(void)=delete;
+		rank_support(vector<b_s, vector_type> &cv)
 			: bv(cv)
 		{}
 		size_t operator()(size_t const key) const
@@ -582,12 +583,12 @@ class rank_support_s18
 		}
 };
 
-template<uint8_t q, uint16_t b_s, typename vector_type>
-class select_support_s18
+template<uint8_t q, uint16_t b_s, class vector_type>
+class select_support
 {
-	static_assert(q < 2, "select_support_s18: bit pattern must be `0` or `1`");
+	static_assert(q < 2, "select_support: bit pattern must be `0` or `1`");
 	private:
-		s18_vector<b_s, vector_type> const &bv;
+		vector<b_s, vector_type> const &bv;
 
 		typedef typename vector_type::iterator       iterator_type;
 		typedef typename vector_type::const_iterator const_iterator_type;
@@ -600,12 +601,11 @@ class select_support_s18
 
 		size_t select1(size_t const key) const
 		{
-			size_t position_in_idx_for_unpack = bv.l2_ones[key / bv.l2_ones_div] - 1;
-			size_t start = b_s * position_in_idx_for_unpack;
-			return bv.idx_bits[position_in_idx_for_unpack] + partial_sum(
-				bv.s18_seq.begin() + start,
+			uint32_t pos = static_cast<uint32_t>(bv.l2_ones[key / bv.l2_ones_div] - 1);
+			return bv.idx_bits[pos] + partial_sum(
+				bv.s18_seq.begin() + pos * b_s,
 				bv.s18_seq.end(),
-				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_ones[position_in_idx_for_unpack])
+				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_ones[pos])
 			);
 		}
 
@@ -615,14 +615,14 @@ class select_support_s18
 			size_t accum = 0;
 
 			for (; std::distance(gaps, end) > 0 and counter; gaps++) {
-				s18_word word(*gaps);
-				auto const [_case, leading_1s, len] = word.metadata();
+				word w(*gaps);
+				auto const [_case, leading_1s, len] = w.metadata();
 
 				accum += std::min(counter, leading_1s);
 				counter -= std::min(counter, leading_1s);
 
 				for (size_t i = 0; i < len and counter; i++, counter--) {
-					uint32_t wi = word.access_fast(i, _case);
+					uint32_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 					accum += wi;
 				}
@@ -635,8 +635,8 @@ class select_support_s18
 			return accum;
 		}
 	public:
-		select_support_s18(void)=delete;
-		select_support_s18(s18_vector<b_s, vector_type> &cv)
+		select_support(void)=delete;
+		select_support(vector<b_s, vector_type> &cv)
 			: bv(cv)
 		{}
 		size_t operator()(size_t const key) const
@@ -645,6 +645,7 @@ class select_support_s18
 		}
 };
 
-}
+} /* namespace s18 */
+} /* namespace sdsl */
 
 #endif

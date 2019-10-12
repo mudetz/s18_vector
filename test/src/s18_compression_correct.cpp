@@ -1,5 +1,5 @@
 /*
- * s18_vector: An implementation for S18 compressed bitvectors
+ * s18::vector: An implementation for S18 compressed bitvectors
  * Copyright (C) 2019  Manuel Weitzman
 
  * This program is free software: you can redistribute it and/or modify
@@ -107,7 +107,7 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 
 			WHEN("It is compressed")
 			{
-				sdsl::s18_vector<B> s18(bv);
+				sdsl::s18::vector<B> s18(bv);
 				THEN ("It is correctly encoded in a S18 word")
 				{
 
@@ -143,12 +143,12 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				}
 				AND_THEN("Word size is correct")
 				{
-					REQUIRE(sdsl::s18_word(s18.data()[0]).size() == gv.size());
+					REQUIRE(sdsl::s18::word(s18.data()[0]).size() == gv.size());
 				}
 				AND_THEN ("Gaps are decoded correctly")
 				{
-					for (size_t i = 0; i < sdsl::s18_word(s18.data()[0]).size(); i++)
-						REQUIRE(gv[i] == sdsl::s18_word(*s18.data().begin())[i]);
+					for (size_t i = 0; i < sdsl::s18::word(s18.data()[0]).size(); i++)
+						REQUIRE(gv[i] == sdsl::s18::word(*s18.data().begin())[i]);
 				}
 				AND_THEN("It is decompressed correctly (using [slow] access)")
 				{
@@ -162,25 +162,25 @@ TEMPLATE_TEST_CASE_SIG("All cases are compressed correctly", "[compression]", ((
 				}
 				AND_THEN("It is decompressed correctly (using access support)")
 				{
-					sdsl::access_support_s18<B> as(s18);
+					sdsl::s18::access_support<B> as(s18);
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(bv[i] == as(i));
 				}
 				AND_THEN("It is decompressed correctly (using rank1)")
 				{
-					sdsl::rank_support_s18<1, B> rs(s18);
+					sdsl::s18::rank_support<1, B> rs(s18);
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(rs(i) == rv1[i]);
 				}
 				AND_THEN("It is decompressed correctly (using rank0)")
 				{
-					sdsl::rank_support_s18<0, B> rs(s18);
+					sdsl::s18::rank_support<0, B> rs(s18);
 					for (size_t i = 0; i < bv.size(); i++)
 						REQUIRE(rs(i) == rv0[i]);
 				}
 				AND_THEN("It is decompressed correctly (using select1)")
 				{
-					sdsl::select_support_s18<1, B> ss(s18);
+					sdsl::s18::select_support<1, B> ss(s18);
 					for (size_t i = 0; i < av.size(); i++)
 						REQUIRE(ss(i + 1) == av[i]);
 				}
@@ -209,7 +209,7 @@ TEMPLATE_TEST_CASE_SIG("100 sparse vectors are compressed correctly", "", ((uint
 
 		WHEN("It is compressed")
 		{
-			sdsl::s18_vector<B> s18(bv);
+			sdsl::s18::vector<B> s18(bv);
 			THEN("Size is correct")
 			{
 				REQUIRE(bv.size() == s18.size());
@@ -221,26 +221,26 @@ TEMPLATE_TEST_CASE_SIG("100 sparse vectors are compressed correctly", "", ((uint
 			}
 			AND_THEN("It is decompressed correctly (using access support)")
 			{
-				sdsl::access_support_s18<B> as(s18);
+				sdsl::s18::access_support<B> as(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(bv[i] == as(i));
 			}
 			AND_THEN("It is decompressed correctly (using rank1)")
 			{
-				sdsl::rank_support_s18<1, B> rs(s18);
+				sdsl::s18::rank_support<1, B> rs(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(rs(i) == rv1[i]);
 			}
 
 			AND_THEN("It is decompressed correctly (using rank0)")
 			{
-				sdsl::rank_support_s18<0, B> rs(s18);
+				sdsl::s18::rank_support<0, B> rs(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(rs(i) == rv0[i]);
 			}
 			AND_THEN("It is decompressed correctly (using select1)")
 			{
-				sdsl::select_support_s18<1, B> ss(s18);
+				sdsl::s18::select_support<1, B> ss(s18);
 				for (size_t i = 0; i < av.size(); i++)
 					REQUIRE(ss(i + 1) == av[i]);
 			}
@@ -268,7 +268,7 @@ TEMPLATE_TEST_CASE_SIG("100 normal vectors are compressed correctly", "", ((uint
 
 		WHEN("It is compressed")
 		{
-			sdsl::s18_vector<B> s18(bv);
+			sdsl::s18::vector<B> s18(bv);
 			THEN("Size is correct")
 			{
 				REQUIRE(bv.size() == s18.size());
@@ -280,26 +280,26 @@ TEMPLATE_TEST_CASE_SIG("100 normal vectors are compressed correctly", "", ((uint
 			}
 			AND_THEN("It is decompressed correctly (using access support)")
 			{
-				sdsl::access_support_s18<B> as(s18);
+				sdsl::s18::access_support<B> as(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(bv[i] == as(i));
 			}
 			AND_THEN("It is decompressed correctly (using rank1)")
 			{
-				sdsl::rank_support_s18<1, B> rs(s18);
+				sdsl::s18::rank_support<1, B> rs(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(rs(i) == rv1[i]);
 			}
 
 			AND_THEN("It is decompressed correctly (using rank0)")
 			{
-				sdsl::rank_support_s18<0, B> rs(s18);
+				sdsl::s18::rank_support<0, B> rs(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(rs(i) == rv0[i]);
 			}
 			AND_THEN("It is decompressed correctly (using select1)")
 			{
-				sdsl::select_support_s18<1, B> ss(s18);
+				sdsl::s18::select_support<1, B> ss(s18);
 				for (size_t i = 0; i < av.size(); i++)
 					REQUIRE(ss(i + 1) == av[i]);
 			}
@@ -327,7 +327,7 @@ TEMPLATE_TEST_CASE_SIG("100 dense vectors are compressed correctly", "", ((uint1
 
 		WHEN("It is compressed")
 		{
-			sdsl::s18_vector<B> s18(bv);
+			sdsl::s18::vector<B> s18(bv);
 			THEN("Size is correct")
 			{
 				REQUIRE(bv.size() == s18.size());
@@ -339,26 +339,26 @@ TEMPLATE_TEST_CASE_SIG("100 dense vectors are compressed correctly", "", ((uint1
 			}
 			AND_THEN("It is decompressed correctly (using access support)")
 			{
-				sdsl::access_support_s18<B> as(s18);
+				sdsl::s18::access_support<B> as(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(bv[i] == as(i));
 			}
 			AND_THEN("It is decompressed correctly (using rank1)")
 			{
-				sdsl::rank_support_s18<1, B> rs(s18);
+				sdsl::s18::rank_support<1, B> rs(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(rs(i) == rv1[i]);
 			}
 
 			AND_THEN("It is decompressed correctly (using rank0)")
 			{
-				sdsl::rank_support_s18<0, B> rs(s18);
+				sdsl::s18::rank_support<0, B> rs(s18);
 				for (size_t i = 0; i < bv.size(); i++)
 					REQUIRE(rs(i) == rv0[i]);
 			}
 			AND_THEN("It is decompressed correctly (using select1)")
 			{
-				sdsl::select_support_s18<1, B> ss(s18);
+				sdsl::s18::select_support<1, B> ss(s18);
 				for (size_t i = 0; i < av.size(); i++)
 					REQUIRE(ss(i + 1) == av[i]);
 			}
