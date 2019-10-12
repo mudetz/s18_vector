@@ -388,17 +388,18 @@ class vector
 			idx_ones.resize(size_idx_ones);
 
 			/* Build L2 index */
-			l2_bits.resize(size_idx_bits);
-			l2_ones.resize(size_idx_bits);
+			size_t size_l2 = size_idx_bits;
+			l2_bits.resize(size_l2);
+			l2_ones.resize(size_l2);
 
-			l2_bits_div = m_size / size_idx_bits + (m_size % size_idx_bits != 0);
-			for (size_t i = 0; i < size_idx_bits; i++) {
+			l2_bits_div = m_size / size_l2 + (m_size % size_l2 != 0);
+			for (size_t i = 0; i < size_l2; i++) {
 				auto it = std::upper_bound(idx_bits.begin(), idx_bits.end(), i * l2_bits_div);
 				l2_bits[i] = static_cast<uint32_t>(std::distance(idx_bits.begin(), it));
 			}
 
-			l2_ones_div = (m_ones + 1) / size_idx_bits + ((m_ones + 1) % size_idx_bits != 0);
-			for (size_t i = 0; i < size_idx_bits; i++) {
+			l2_ones_div = (m_ones + 1) / size_l2 + ((m_ones + 1) % size_l2 != 0);
+			for (size_t i = 0; i < size_l2; i++) {
 				auto it = std::upper_bound(idx_ones.begin(), idx_ones.end(), i * l2_ones_div);
 				l2_ones[i] = static_cast<uint32_t>(std::distance(idx_ones.begin(), it));
 			}
@@ -549,20 +550,21 @@ class rank_support
 		size_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
 		{
 			const_iterator_type gaps = begin;
-			uint32_t accum = -1;
-			size_t one_cnt = 0;
+			int_fast64_t accum = -1;
+			int_fast64_t one_cnt = 0;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				word w(*gaps);
 				auto const [_case, leading_1s, len] = w.metadata();
 
-				for (size_t i = 0; i < leading_1s; i++, one_cnt++) {
-					accum += 1;
-					if (accum >= target_accum) return one_cnt;
-				}
+				if (accum + leading_1s >= target_accum)
+					return one_cnt + target_accum - accum - 1;
+
+				accum += leading_1s;
+				one_cnt += leading_1s;
 
 				for (size_t i = 0; i < len; i++, one_cnt++) {
-					uint32_t wi = w.access_fast(i, _case);
+					int_fast32_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;

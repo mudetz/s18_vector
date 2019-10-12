@@ -37,6 +37,8 @@ int main(void)
     		std::uniform_int_distribution<size_t> unifidx(0, SIZE - SIZE / 1000);
 
 		sdsl::bit_vector b = sdsl::bit_vector(SIZE, 0);
+		sdsl::rank_support_v rs(&b);
+		sdsl::select_support_mcl ss(&b);
 
 		// Gaps
 	 	for (size_t i = 0; i < b.size(); i++)
@@ -74,13 +76,31 @@ int main(void)
 		sdsl::rrr_vector<128> rrr_128(b);
 		sdsl::rrr_vector<256> rrr_256(b);
 
+		sdsl::rank_support_rrr<1, 8>   rs_rrr_8(&rrr_8);
+		sdsl::rank_support_rrr<1, 16>  rs_rrr_16(&rrr_16);
+		sdsl::rank_support_rrr<1, 32>  rs_rrr_32(&rrr_32);
+		sdsl::rank_support_rrr<1, 64>  rs_rrr_64(&rrr_64);
+		sdsl::rank_support_rrr<1, 128> rs_rrr_128(&rrr_128);
+		sdsl::rank_support_rrr<1, 256> rs_rrr_256(&rrr_256);
+
+		sdsl::select_support_rrr<1, 8>   ss_rrr_8(&rrr_8);
+		sdsl::select_support_rrr<1, 16>  ss_rrr_16(&rrr_16);
+		sdsl::select_support_rrr<1, 32>  ss_rrr_32(&rrr_32);
+		sdsl::select_support_rrr<1, 64>  ss_rrr_64(&rrr_64);
+		sdsl::select_support_rrr<1, 128> ss_rrr_128(&rrr_128);
+		sdsl::select_support_rrr<1, 256> ss_rrr_256(&rrr_256);
+
 		sdsl::sd_vector sd_1(b);
 
+		sdsl::rank_support_sd<1> rs_sd_1(&sd_1);
+		sdsl::select_support_sd<1> ss_sd_1(&sd_1);
+
 		sdsl::hyb_vector hv(b);
+		sdsl::rank_support_hyb rs_hyb(&hv);
 
 		std::cout << "CASE " << t << std::endl;
 
-		std::cout << "bit_vector"      << "\t" << size_in_mega_bytes(b)       << std::endl;
+		std::cout << "bit_vector"      << "\t" << size_in_mega_bytes(b)       << "\t" << size_in_mega_bytes(rs) << "\t" << size_in_mega_bytes(ss) << std::endl;
 		std::cout << "s9_vector<8>"    << "\t" << size_in_mega_bytes(s9_8)    << std::endl;
 		std::cout << "s9_vector<16>"   << "\t" << size_in_mega_bytes(s9_16)   << std::endl;
 		std::cout << "s9_vector<32>"   << "\t" << size_in_mega_bytes(s9_32)   << std::endl;
@@ -95,14 +115,14 @@ int main(void)
 		std::cout << "s18::vector<16>" << "\t" << size_in_mega_bytes(s18_16)  << std::endl;
 		std::cout << "s18::vector<32>" << "\t" << size_in_mega_bytes(s18_32)  << std::endl;
 		std::cout << "s18::vector<64>" << "\t" << size_in_mega_bytes(s18_64)  << std::endl;
-		std::cout << "rrr_vector<8>"   << "\t" << size_in_mega_bytes(rrr_8)   << std::endl;
-		std::cout << "rrr_vector<16>"  << "\t" << size_in_mega_bytes(rrr_16)  << std::endl;
-		std::cout << "rrr_vector<32>"  << "\t" << size_in_mega_bytes(rrr_32)  << std::endl;
-		std::cout << "rrr_vector<64>"  << "\t" << size_in_mega_bytes(rrr_64)  << std::endl;
-		std::cout << "rrr_vector<128>" << "\t" << size_in_mega_bytes(rrr_128) << std::endl;
-		std::cout << "rrr_vector<256>" << "\t" << size_in_mega_bytes(rrr_256) << std::endl;
-		std::cout << "sd_vector<>"     << "\t" << size_in_mega_bytes(sd_1)    << std::endl;
-		std::cout << "hyb_vector"      << "\t" << size_in_mega_bytes(hv)      << std::endl;
+		std::cout << "rrr_vector<8>"   << "\t" << size_in_mega_bytes(rrr_8)   << "\t" << size_in_mega_bytes(  rs_rrr_8) << "\t" << size_in_mega_bytes(  ss_rrr_8) << std::endl;
+		std::cout << "rrr_vector<16>"  << "\t" << size_in_mega_bytes(rrr_16)  << "\t" << size_in_mega_bytes( rs_rrr_16) << "\t" << size_in_mega_bytes( ss_rrr_16) << std::endl;
+		std::cout << "rrr_vector<32>"  << "\t" << size_in_mega_bytes(rrr_32)  << "\t" << size_in_mega_bytes( rs_rrr_32) << "\t" << size_in_mega_bytes( ss_rrr_32) << std::endl;
+		std::cout << "rrr_vector<64>"  << "\t" << size_in_mega_bytes(rrr_64)  << "\t" << size_in_mega_bytes( rs_rrr_64) << "\t" << size_in_mega_bytes( ss_rrr_64) << std::endl;
+		std::cout << "rrr_vector<128>" << "\t" << size_in_mega_bytes(rrr_128) << "\t" << size_in_mega_bytes(rs_rrr_128) << "\t" << size_in_mega_bytes(ss_rrr_128) << std::endl;
+		std::cout << "rrr_vector<256>" << "\t" << size_in_mega_bytes(rrr_256) << "\t" << size_in_mega_bytes(rs_rrr_256) << "\t" << size_in_mega_bytes(ss_rrr_256) << std::endl;
+		std::cout << "sd_vector<>"     << "\t" << size_in_mega_bytes(sd_1) << "\t" << size_in_mega_bytes(rs_sd_1) << "\t" << size_in_mega_bytes(ss_sd_1) << std::endl;
+		std::cout << "hyb_vector"      << "\t" << size_in_mega_bytes(hv) << "\t" << size_in_mega_bytes(rs_hyb) << std::endl;
 
 		std::cout << std::endl;
 	}
