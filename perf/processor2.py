@@ -36,7 +36,9 @@ tex_pre = r"""
             ylabel={Latencia [ns]},
             legend style={font=\scriptsize},
             ticklabel style = {font=\small},
-            label style={font=\small}
+            label style={font=\small},
+            xmin=0,
+            ymin=0
         ]
             \addplot[
                 scatter,only marks,scatter src=explicit symbolic,

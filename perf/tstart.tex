@@ -3,5 +3,28 @@
 \usepackage{amsmath}
 \usepackage{pgfplots}
 \usepackage{tikz}
+\usepackage{pgfplotstable}
+
+\pgfplotsset{
+  discard if/.style 2 args={
+    x filter/.code={
+      \edef\tempa{\thisrow{#1}}
+      \edef\tempb{#2}
+      \ifx\tempa\tempb
+      \def\pgfmathresult{inf}
+      \fi
+    }
+  },
+  discard if not/.style 2 args={
+    x filter/.code={
+      \edef\tempa{\thisrow{#1}}
+      \edef\tempb{#2}
+      \ifx\tempa\tempb
+      \else
+      \def\pgfmathresult{inf}
+      \fi
+    }
+  }
+}
 
 \begin{document}

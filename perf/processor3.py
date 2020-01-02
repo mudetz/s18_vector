@@ -45,8 +45,10 @@ tex_pre = r"""
             ymax=500,
             xmax=1.4
         ]
-            \addplot[
-                scatter,only marks,scatter src=explicit symbolic,
+"""
+
+tex_pre2 = r"""            \addplot[
+                scatter,smooth,black,scatter src=explicit symbolic,
                 scatter/classes={
                     plain={mark=square*,draw=black},
                     s9={mark=o,fill=black},
@@ -56,12 +58,15 @@ tex_pre = r"""
                     hyb={mark=triangle}
                 },
             ]
-            table[x expr=\thisrow{size}/%s,y=latency,meta=label,discard if not={group}{s18}]{
-                label   size    latency"""
+            table[x expr=\thisrow{size}/%s,y=latency,meta=label]{
+                label   size    latency
+"""
 
-tex_post = r"""
+tex_post2 = r"""
 };
-            \legend{
+"""
+
+tex_post = r"""            \legend{
                 \texttt{bit\_vector},
                 \texttt{s9\_vector},
                 \texttt{s18::vector},
@@ -111,26 +116,36 @@ idx = {
 }
 
 lambda_ = 127
-x = '10{,}000'
+x = '100'
 p = (.05, .1, .2, .3, .4, .5, .6, .7, .8, .9, .95)
 
 for c in range(C):
     plain_size = files[c][0][0][-2].split('=')[-1]
     for method, data in [('Access', files[c][0])]:
-        pre = tex_pre % (plain_size,)
+        pre = tex_pre
         post = tex_post % (method, method, lambda_, x, p[c])
 
-        in_ = ''
+        in_ = tex_pre2 % (plain_size,)
+        last_label = None
         for i, label in enumerate(labels):
             if i == 22 and method in ['Select', 'Successor']:
                 continue
+            if label != last_label:
+                in_ += tex_post2
+                in_ += tex_pre2 % (plain_size,)
             size = files[c][0][i][-2].split('=')[-1]
             latency = data[i][idx[method]]
+            if int(latency) > 500:
+                continue
             if size.endswith('m'):
                 size = '0.00%s' % size.replace('.', '').replace('m', '')
+            if float(size) / float(plain_size) > 1.4:
+                continue
             in_ += ' ' * 16
             in_ += '\t'.join([label, size, latency])
             in_ += '\n'
+            last_label = label
+        in_ += tex_post2
 
         print(pre)
         print(in_)
@@ -139,20 +154,30 @@ for c in range(C):
 for c in range(C):
     plain_size = files[c][0][0][-2].split('=')[-1]
     for method, data in [('Rank', files[c][1])]:
-        pre = tex_pre % (plain_size,)
+        pre = tex_pre
         post = tex_post % (method, method, lambda_, x, p[c])
 
-        in_ = ''
+        in_ = tex_pre2 % (plain_size,)
+        last_label = None
         for i, label in enumerate(labels):
             if i == 22 and method in ['Select', 'Successor']:
                 continue
+            if label != last_label:
+                in_ += tex_post2
+                in_ += tex_pre2 % (plain_size,)
             size = files[c][0][i][-2].split('=')[-1]
             latency = data[i][idx[method]]
+            if int(latency) > 500:
+                continue
             if size.endswith('m'):
                 size = '0.00%s' % size.replace('.', '').replace('m', '')
+            if float(size) / float(plain_size) > 1.4:
+                continue
             in_ += ' ' * 16
             in_ += '\t'.join([label, size, latency])
             in_ += '\n'
+            last_label = label
+        in_ += tex_post2
 
         print(pre)
         print(in_)
@@ -161,20 +186,30 @@ for c in range(C):
 for c in range(C):
     plain_size = files[c][0][0][-2].split('=')[-1]
     for method, data in [('Select', files[c][2])]:
-        pre = tex_pre % (plain_size,)
+        pre = tex_pre
         post = tex_post % (method, method, lambda_, x, p[c])
 
-        in_ = ''
+        in_ = tex_pre2 % (plain_size,)
+        last_label = None
         for i, label in enumerate(labels):
             if i == 22 and method in ['Select', 'Successor']:
                 continue
+            if label != last_label:
+                in_ += tex_post2
+                in_ += tex_pre2 % (plain_size,)
             size = files[c][0][i][-2].split('=')[-1]
             latency = data[i][idx[method]]
+            if int(latency) > 500:
+                continue
             if size.endswith('m'):
                 size = '0.00%s' % size.replace('.', '').replace('m', '')
+            if float(size) / float(plain_size) > 1.4:
+                continue
             in_ += ' ' * 16
             in_ += '\t'.join([label, size, latency])
             in_ += '\n'
+            last_label = label
+        in_ += tex_post2
 
         print(pre)
         print(in_)
@@ -183,20 +218,31 @@ for c in range(C):
 for c in range(C):
     plain_size = files[c][0][0][-2].split('=')[-1]
     for method, data in [('Successor', files[c][3])]:
-        pre = tex_pre % (plain_size,)
+        pre = tex_pre
         post = tex_post % (method, method, lambda_, x, p[c])
 
-        in_ = ''
+        in_ = tex_pre2 % (plain_size,)
+        last_label = None
         for i, label in enumerate(labels):
             if i == 22 and method in ['Select', 'Successor']:
                 continue
+            if label != last_label:
+                in_ += tex_post2
+                in_ += tex_pre2 % (plain_size,)
             size = files[c][0][i][-2].split('=')[-1]
             latency = data[i][idx[method]]
+            if int(latency) > 500:
+                continue
             if size.endswith('m'):
                 size = '0.00%s' % size.replace('.', '').replace('m', '')
+            if float(size) / float(plain_size) > 1.4:
+                continue
             in_ += ' ' * 16
             in_ += '\t'.join([label, size, latency])
             in_ += '\n'
+
+            last_label = label
+        in_ += tex_post2
 
         print(pre)
         print(in_)

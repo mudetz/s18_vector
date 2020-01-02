@@ -1,105 +1,105 @@
 -------------------------------------------------------------------------------------------------
 Benchmark                                       Time             CPU   Iterations UserCounters...
 -------------------------------------------------------------------------------------------------
-BM_access_bv<sdsl::bit_vector>/7              129 ns          129 ns      5333419 bits=35.6635M comp=4.25143 size=4.25143
-BM_access_s9<sdsl::s9_vector<8>>/7            468 ns          468 ns      1483359 bits=35.6635M comp=33.6506 size=4.25143
-BM_access_s9<sdsl::s9_vector<16>>/7           463 ns          463 ns      1500399 bits=35.6635M comp=16.8333 size=4.25143
-BM_access_s9<sdsl::s9_vector<32>>/7           454 ns          454 ns      1533527 bits=35.6635M comp=8.42883 size=4.25143
-BM_access_s9<sdsl::s9_vector<64>>/7           436 ns          436 ns      1622187 bits=35.6635M comp=8.42239 size=4.25143
-BM_access_s9<sdsl::s9_vector<128>>/7          405 ns          405 ns      1760699 bits=35.6635M comp=6.32339 size=4.25143
-BM_access_s9<sdsl::s9_vector<256>>/7          386 ns          386 ns      1810479 bits=35.6635M comp=5.27591 size=4.25143
-BM_access_s9<sdsl::s9_vector<512>>/7          416 ns          415 ns      1657880 bits=35.6635M comp=5.26881 size=4.25143
-BM_access_s18<sdsl::s18::vector<1>>/7         165 ns          165 ns      3985429 bits=35.6635M comp=0.0557899 size=4.25143
-BM_access_s18<sdsl::s18::vector<2>>/7         182 ns          182 ns      3847831 bits=35.6635M comp=0.0355568 size=4.25143
-BM_access_s18<sdsl::s18::vector<4>>/7         198 ns          198 ns      3536799 bits=35.6635M comp=0.0256691 size=4.25143
-BM_access_s18<sdsl::s18::vector<8>>/7         226 ns          225 ns      3095143 bits=35.6635M comp=0.0208778 size=4.25143
-BM_access_s18<sdsl::s18::vector<16>>/7        269 ns          269 ns      2584688 bits=35.6635M comp=0.018528 size=4.25143
-BM_access_s18<sdsl::s18::vector<32>>/7        379 ns          379 ns      1856469 bits=35.6635M comp=0.0173836 size=4.25143
-BM_access_s18<sdsl::s18::vector<64>>/7        592 ns          592 ns      1053165 bits=35.6635M comp=0.0168343 size=4.25143
-BM_access_rrr<sdsl::rrr_vector<8>>/7          130 ns          130 ns      5362977 bits=35.6635M comp=2.82604 size=4.25143
-BM_access_rrr<sdsl::rrr_vector<16>>/7         138 ns          138 ns      5227072 bits=35.6635M comp=1.69123 size=4.25143
-BM_access_rrr<sdsl::rrr_vector<32>>/7         151 ns          151 ns      4003900 bits=35.6635M comp=0.99113 size=4.25143
-BM_access_rrr<sdsl::rrr_vector<64>>/7         174 ns          174 ns      4585346 bits=35.6635M comp=0.581111 size=4.25143
-BM_access_rrr<sdsl::rrr_vector<128>>/7        157 ns          156 ns      3811345 bits=35.6635M comp=0.358432 size=4.25143
-BM_access_rrr<sdsl::rrr_vector<256>>/7        149 ns          149 ns      4773385 bits=35.6635M comp=0.254275 size=4.25143
-BM_access_sd<sdsl::sd_vector<>>/7             252 ns          252 ns      2473813 bits=35.6635M comp=14.326 size=4.25143
-BM_access_hyb/7                               148 ns          148 ns      4696601 bits=35.6635M comp=0.334396 size=4.25143
+BM_access_bv<sdsl::bit_vector>/7              136 ns          136 ns      5308428 bits=1081.78k comp=0.128967 size=0.128967
+BM_access_s9<sdsl::s9_vector<8>>/7            271 ns          271 ns      2772997 bits=1081.78k comp=0.680473 size=0.128967
+BM_access_s9<sdsl::s9_vector<16>>/7           270 ns          270 ns      2731007 bits=1081.78k comp=0.348145 size=0.128967
+BM_access_s9<sdsl::s9_vector<32>>/7           275 ns          274 ns      2615922 bits=1081.78k comp=0.186165 size=0.128967
+BM_access_s9<sdsl::s9_vector<64>>/7           279 ns          278 ns      2577011 bits=1081.78k comp=0.17971 size=0.128967
+BM_access_s9<sdsl::s9_vector<128>>/7          292 ns          292 ns      2487797 bits=1081.78k comp=0.141403 size=0.128967
+BM_access_s9<sdsl::s9_vector<256>>/7          314 ns          313 ns      2308086 bits=1081.78k comp=0.123688 size=0.128967
+BM_access_s9<sdsl::s9_vector<512>>/7          371 ns          370 ns      1960823 bits=1081.78k comp=0.119034 size=0.128967
+BM_access_s18<sdsl::s18::vector<1>>/7         179 ns          179 ns      4010455 bits=1081.78k comp=0.049572 size=0.128967
+BM_access_s18<sdsl::s18::vector<2>>/7         192 ns          192 ns      3781263 bits=1081.78k comp=0.0323448 size=0.128967
+BM_access_s18<sdsl::s18::vector<4>>/7         204 ns          204 ns      3547497 bits=1081.78k comp=0.0239677 size=0.128967
+BM_access_s18<sdsl::s18::vector<8>>/7         236 ns          236 ns      3063946 bits=1081.78k comp=0.0199165 size=0.128967
+BM_access_s18<sdsl::s18::vector<16>>/7        289 ns          288 ns      2501408 bits=1081.78k comp=0.0179329 size=0.128967
+BM_access_s18<sdsl::s18::vector<32>>/7        389 ns          389 ns      1828838 bits=1081.78k comp=0.0169868 size=0.128967
+BM_access_s18<sdsl::s18::vector<64>>/7        580 ns          580 ns      1208365 bits=1081.78k comp=0.0165215 size=0.128967
+BM_access_rrr<sdsl::rrr_vector<8>>/7          135 ns          135 ns      5311195 bits=1081.78k comp=0.085391 size=0.128967
+BM_access_rrr<sdsl::rrr_vector<16>>/7         135 ns          134 ns      5291309 bits=1081.78k comp=0.0551405 size=0.128967
+BM_access_rrr<sdsl::rrr_vector<32>>/7         153 ns          153 ns      4695246 bits=1081.78k comp=0.0400724 size=0.128967
+BM_access_rrr<sdsl::rrr_vector<64>>/7         165 ns          165 ns      4352161 bits=1081.78k comp=0.0389509 size=0.128967
+BM_access_rrr<sdsl::rrr_vector<128>>/7        187 ns          187 ns      3847484 bits=1081.78k comp=0.0544386 size=0.128967
+BM_access_rrr<sdsl::rrr_vector<256>>/7        209 ns          209 ns      3475855 bits=1081.78k comp=0.0787153 size=0.128967
+BM_access_sd<sdsl::sd_vector<>>/7             195 ns          195 ns      3703161 bits=1081.78k comp=0.353456 size=0.128967
+BM_access_hyb/7                               148 ns          148 ns      4791504 bits=1081.78k comp=0.0126801 size=0.128967
 --------------------------------------------------------------------------------------------------------------
 Benchmark                                                                    Time             CPU   Iterations
 --------------------------------------------------------------------------------------------------------------
-BM_rank_bv<sdsl::bit_vector, sdsl::rank_support_v<1>>/7                    139 ns          139 ns      5063346
-BM_rank_s9<sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>>/7               519 ns          519 ns      1392529
-BM_rank_s9<sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>>/7             490 ns          490 ns      1244378
-BM_rank_s9<sdsl::s9_vector<32>, sdsl::rank_support_s9<1,32>>/7             490 ns          489 ns      1285613
-BM_rank_s9<sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>>/7             497 ns          496 ns      1218922
-BM_rank_s9<sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>>/7           512 ns          511 ns      1000000
-BM_rank_s9<sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>>/7           499 ns          498 ns      1717194
-BM_rank_s9<sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>>/7           477 ns          477 ns      1601070
-BM_rank_s18<sdsl::s18::vector<1>, sdsl::s18::rank_support<1,1>>/7          179 ns          179 ns      4171601
-BM_rank_s18<sdsl::s18::vector<2>, sdsl::s18::rank_support<1,2>>/7          181 ns          181 ns      3860664
-BM_rank_s18<sdsl::s18::vector<4>, sdsl::s18::rank_support<1,4>>/7          202 ns          202 ns      3550528
-BM_rank_s18<sdsl::s18::vector<8>, sdsl::s18::rank_support<1,8>>/7          234 ns          234 ns      2840549
-BM_rank_s18<sdsl::s18::vector<16>, sdsl::s18::rank_support<1,16>>/7        274 ns          274 ns      2566142
-BM_rank_s18<sdsl::s18::vector<32>, sdsl::s18::rank_support<1,32>>/7        371 ns          371 ns      1888401
-BM_rank_s18<sdsl::s18::vector<64>, sdsl::s18::rank_support<1,64>>/7        563 ns          562 ns      1265076
-BM_rank_rrr<sdsl::rrr_vector<8>, sdsl::rank_support_rrr<1,8>>/7            134 ns          134 ns      5223425
-BM_rank_rrr<sdsl::rrr_vector<16>, sdsl::rank_support_rrr<1,16>>/7          133 ns          133 ns      5310094
-BM_rank_rrr<sdsl::rrr_vector<32>, sdsl::rank_support_rrr<1,32>>/7          165 ns          165 ns      4296193
-BM_rank_rrr<sdsl::rrr_vector<64>, sdsl::rank_support_rrr<1,64>>/7          167 ns          167 ns      4237800
-BM_rank_rrr<sdsl::rrr_vector<128>, sdsl::rank_support_rrr<1,128>>/7        183 ns          183 ns      4053402
-BM_rank_rrr<sdsl::rrr_vector<256>, sdsl::rank_support_rrr<1,256>>/7        214 ns          214 ns      3282752
-BM_rank_sd<sdsl::sd_vector<>, sdsl::rank_support_sd<1>>/7                  278 ns          277 ns      2552599
-BM_rank_hyb/7                                                              157 ns          157 ns      4388340
+BM_rank_bv<sdsl::bit_vector, sdsl::rank_support_v<1>>/7                    136 ns          136 ns      5308451
+BM_rank_s9<sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>>/7               287 ns          286 ns      2632727
+BM_rank_s9<sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>>/7             285 ns          284 ns      2599461
+BM_rank_s9<sdsl::s9_vector<32>, sdsl::rank_support_s9<1,32>>/7             293 ns          293 ns      2499557
+BM_rank_s9<sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>>/7             292 ns          292 ns      2494290
+BM_rank_s9<sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>>/7           306 ns          306 ns      2315104
+BM_rank_s9<sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>>/7           332 ns          332 ns      2183073
+BM_rank_s9<sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>>/7           389 ns          389 ns      1862320
+BM_rank_s18<sdsl::s18::vector<1>, sdsl::s18::rank_support<1,1>>/7          181 ns          181 ns      4000949
+BM_rank_s18<sdsl::s18::vector<2>, sdsl::s18::rank_support<1,2>>/7          190 ns          190 ns      3798679
+BM_rank_s18<sdsl::s18::vector<4>, sdsl::s18::rank_support<1,4>>/7          208 ns          207 ns      3476965
+BM_rank_s18<sdsl::s18::vector<8>, sdsl::s18::rank_support<1,8>>/7          233 ns          233 ns      3100745
+BM_rank_s18<sdsl::s18::vector<16>, sdsl::s18::rank_support<1,16>>/7        293 ns          292 ns      2470773
+BM_rank_s18<sdsl::s18::vector<32>, sdsl::s18::rank_support<1,32>>/7        388 ns          388 ns      1858678
+BM_rank_s18<sdsl::s18::vector<64>, sdsl::s18::rank_support<1,64>>/7        573 ns          573 ns      1241127
+BM_rank_rrr<sdsl::rrr_vector<8>, sdsl::rank_support_rrr<1,8>>/7            135 ns          135 ns      5316196
+BM_rank_rrr<sdsl::rrr_vector<16>, sdsl::rank_support_rrr<1,16>>/7          135 ns          134 ns      5301799
+BM_rank_rrr<sdsl::rrr_vector<32>, sdsl::rank_support_rrr<1,32>>/7          208 ns          208 ns      3434659
+BM_rank_rrr<sdsl::rrr_vector<64>, sdsl::rank_support_rrr<1,64>>/7          225 ns          225 ns      3206231
+BM_rank_rrr<sdsl::rrr_vector<128>, sdsl::rank_support_rrr<1,128>>/7        223 ns          223 ns      3248896
+BM_rank_rrr<sdsl::rrr_vector<256>, sdsl::rank_support_rrr<1,256>>/7        851 ns          851 ns       843628
+BM_rank_sd<sdsl::sd_vector<>, sdsl::rank_support_sd<1>>/7                  194 ns          194 ns      3678970
+BM_rank_hyb/7                                                              173 ns          173 ns      4087174
 ------------------------------------------------------------------------------------------------------------------
 Benchmark                                                                        Time             CPU   Iterations
 ------------------------------------------------------------------------------------------------------------------
-BM_select_bv<sdsl::bit_vector, sdsl::select_support_mcl<1>>/7                  241 ns          240 ns      2316100
-BM_select_s9<sdsl::s9_vector<8>, sdsl::select_support_s9<1,8>>/7               375 ns          373 ns      1887928
-BM_select_s9<sdsl::s9_vector<16>, sdsl::select_support_s9<1,16>>/7             310 ns          310 ns      2163878
-BM_select_s9<sdsl::s9_vector<32>, sdsl::select_support_s9<1,32>>/7             353 ns          353 ns      1992961
-BM_select_s9<sdsl::s9_vector<64>, sdsl::select_support_s9<1,64>>/7             365 ns          365 ns      1801644
-BM_select_s9<sdsl::s9_vector<128>, sdsl::select_support_s9<1,128>>/7           333 ns          332 ns      2166600
-BM_select_s9<sdsl::s9_vector<256>, sdsl::select_support_s9<1,256>>/7           337 ns          337 ns      2028445
-BM_select_s9<sdsl::s9_vector<512>, sdsl::select_support_s9<1,512>>/7           391 ns          391 ns      1813054
-BM_select_s18<sdsl::s18::vector<1>, sdsl::s18::select_support<1,1>>/7          172 ns          172 ns      4074589
-BM_select_s18<sdsl::s18::vector<2>, sdsl::s18::select_support<1,2>>/7          187 ns          187 ns      3653215
-BM_select_s18<sdsl::s18::vector<4>, sdsl::s18::select_support<1,4>>/7          207 ns          206 ns      3315109
-BM_select_s18<sdsl::s18::vector<8>, sdsl::s18::select_support<1,8>>/7          231 ns          231 ns      2974806
-BM_select_s18<sdsl::s18::vector<16>, sdsl::s18::select_support<1,16>>/7        292 ns          291 ns      2488361
-BM_select_s18<sdsl::s18::vector<32>, sdsl::s18::select_support<1,32>>/7        356 ns          356 ns      1905286
-BM_select_s18<sdsl::s18::vector<64>, sdsl::s18::select_support<1,64>>/7        574 ns          574 ns      1222798
-BM_select_rrr<sdsl::rrr_vector<8>, sdsl::select_support_rrr<1,8>>/7            308 ns          308 ns      2235839
-BM_select_rrr<sdsl::rrr_vector<16>, sdsl::select_support_rrr<1,16>>/7          295 ns          295 ns      2381120
-BM_select_rrr<sdsl::rrr_vector<32>, sdsl::select_support_rrr<1,32>>/7          285 ns          285 ns      2474959
-BM_select_rrr<sdsl::rrr_vector<64>, sdsl::select_support_rrr<1,64>>/7          277 ns          277 ns      2561521
-BM_select_rrr<sdsl::rrr_vector<128>, sdsl::select_support_rrr<1,128>>/7        269 ns          269 ns      2624273
-BM_select_rrr<sdsl::rrr_vector<256>, sdsl::select_support_rrr<1,256>>/7        285 ns          285 ns      2560856
-BM_select_sd<sdsl::sd_vector<>, sdsl::select_support_sd<1>>/7                  243 ns          243 ns      2738593
+BM_select_bv<sdsl::bit_vector, sdsl::select_support_mcl<1>>/7                  187 ns          186 ns      3853853
+BM_select_s9<sdsl::s9_vector<8>, sdsl::select_support_s9<1,8>>/7               177 ns          177 ns      4214144
+BM_select_s9<sdsl::s9_vector<16>, sdsl::select_support_s9<1,16>>/7             181 ns          181 ns      4083099
+BM_select_s9<sdsl::s9_vector<32>, sdsl::select_support_s9<1,32>>/7             190 ns          189 ns      3866468
+BM_select_s9<sdsl::s9_vector<64>, sdsl::select_support_s9<1,64>>/7             199 ns          198 ns      3675697
+BM_select_s9<sdsl::s9_vector<128>, sdsl::select_support_s9<1,128>>/7           217 ns          217 ns      3352076
+BM_select_s9<sdsl::s9_vector<256>, sdsl::select_support_s9<1,256>>/7           267 ns          266 ns      2761786
+BM_select_s9<sdsl::s9_vector<512>, sdsl::select_support_s9<1,512>>/7           364 ns          364 ns      1987704
+BM_select_s18<sdsl::s18::vector<1>, sdsl::s18::select_support<1,1>>/7          172 ns          171 ns      4200587
+BM_select_s18<sdsl::s18::vector<2>, sdsl::s18::select_support<1,2>>/7          188 ns          188 ns      3836709
+BM_select_s18<sdsl::s18::vector<4>, sdsl::s18::select_support<1,4>>/7          205 ns          204 ns      3516774
+BM_select_s18<sdsl::s18::vector<8>, sdsl::s18::select_support<1,8>>/7          236 ns          236 ns      3051939
+BM_select_s18<sdsl::s18::vector<16>, sdsl::s18::select_support<1,16>>/7        285 ns          285 ns      2506888
+BM_select_s18<sdsl::s18::vector<32>, sdsl::s18::select_support<1,32>>/7        392 ns          392 ns      1816869
+BM_select_s18<sdsl::s18::vector<64>, sdsl::s18::select_support<1,64>>/7        602 ns          602 ns      1153521
+BM_select_rrr<sdsl::rrr_vector<8>, sdsl::select_support_rrr<1,8>>/7            281 ns          281 ns      2571699
+BM_select_rrr<sdsl::rrr_vector<16>, sdsl::select_support_rrr<1,16>>/7          295 ns          295 ns      2409753
+BM_select_rrr<sdsl::rrr_vector<32>, sdsl::select_support_rrr<1,32>>/7          295 ns          295 ns      2418706
+BM_select_rrr<sdsl::rrr_vector<64>, sdsl::select_support_rrr<1,64>>/7          286 ns          286 ns      2487733
+BM_select_rrr<sdsl::rrr_vector<128>, sdsl::select_support_rrr<1,128>>/7        285 ns          285 ns      2483836
+BM_select_rrr<sdsl::rrr_vector<256>, sdsl::select_support_rrr<1,256>>/7        332 ns          332 ns      2181620
+BM_select_sd<sdsl::sd_vector<>, sdsl::select_support_sd<1>>/7                  195 ns          195 ns      3751324
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 Benchmark                                                                                                          Time             CPU   Iterations
 ----------------------------------------------------------------------------------------------------------------------------------------------------
-BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_v<1>, sdsl::select_support_mcl<1>>/7                        257 ns          257 ns      2355209
-BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_v5<1>, sdsl::select_support_mcl<1>>/7                       268 ns          268 ns      2734754
-BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_scan<1>, sdsl::select_support_mcl<1>>/7                  529008 ns       528583 ns         1282
-BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_scan<1>, sdsl::select_support_scan<1>>/7                 949737 ns       948938 ns          763
-BM_successor_s9<sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>, sdsl::select_support_s9<1,8>>/7                  531 ns          530 ns      1316856
-BM_successor_s9<sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>, sdsl::select_support_s9<1,16>>/7               515 ns          514 ns      1357816
-BM_successor_s9<sdsl::s9_vector<32>, sdsl::rank_support_s9<1,32>, sdsl::select_support_s9<1,32>>/7               507 ns          507 ns      1370677
-BM_successor_s9<sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>, sdsl::select_support_s9<1,64>>/7               499 ns          499 ns      1398108
-BM_successor_s9<sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>, sdsl::select_support_s9<1,128>>/7            482 ns          482 ns      1438122
-BM_successor_s9<sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>, sdsl::select_support_s9<1,256>>/7            511 ns          511 ns      1357851
-BM_successor_s9<sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>, sdsl::select_support_s9<1,512>>/7            627 ns          626 ns      1105981
-BM_successor_s18<sdsl::s18::vector<1>, sdsl::s18::rank_support<1,1>, sdsl::s18::select_support<1,1>>/7           201 ns          201 ns      3479356
-BM_successor_s18<sdsl::s18::vector<2>, sdsl::s18::rank_support<1,2>, sdsl::s18::select_support<1,2>>/7           222 ns          222 ns      3154568
-BM_successor_s18<sdsl::s18::vector<4>, sdsl::s18::rank_support<1,4>, sdsl::s18::select_support<1,4>>/7           256 ns          255 ns      2746381
-BM_successor_s18<sdsl::s18::vector<8>, sdsl::s18::rank_support<1,8>, sdsl::s18::select_support<1,8>>/7           313 ns          313 ns      2232824
-BM_successor_s18<sdsl::s18::vector<16>, sdsl::s18::rank_support<1,16>, sdsl::s18::select_support<1,16>>/7        421 ns          421 ns      1657705
-BM_successor_s18<sdsl::s18::vector<32>, sdsl::s18::rank_support<1,32>, sdsl::s18::select_support<1,32>>/7        610 ns          609 ns      1151301
-BM_successor_s18<sdsl::s18::vector<64>, sdsl::s18::rank_support<1,64>, sdsl::s18::select_support<1,64>>/7       1061 ns         1060 ns       661957
-BM_successor_rrr<sdsl::rrr_vector<8>, sdsl::rank_support_rrr<1,8>, sdsl::select_support_rrr<1,8>>/7              326 ns          325 ns      2030179
-BM_successor_rrr<sdsl::rrr_vector<16>, sdsl::rank_support_rrr<1,16>, sdsl::select_support_rrr<1,16>>/7           326 ns          326 ns      2192558
-BM_successor_rrr<sdsl::rrr_vector<32>, sdsl::rank_support_rrr<1,32>, sdsl::select_support_rrr<1,32>>/7           318 ns          317 ns      2291127
-BM_successor_rrr<sdsl::rrr_vector<64>, sdsl::rank_support_rrr<1,64>, sdsl::select_support_rrr<1,64>>/7           319 ns          318 ns      2279614
-BM_successor_rrr<sdsl::rrr_vector<128>, sdsl::rank_support_rrr<1,128>, sdsl::select_support_rrr<1,128>>/7        321 ns          320 ns      2244758
-BM_successor_rrr<sdsl::rrr_vector<256>, sdsl::rank_support_rrr<1,256>, sdsl::select_support_rrr<1,256>>/7        369 ns          368 ns      1964798
-BM_successor_sd<sdsl::sd_vector<>, sdsl::rank_support_sd<1>, sdsl::select_support_sd<1>>/7                       377 ns          377 ns      1875353
+BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_v<1>, sdsl::select_support_mcl<1>>/7                        208 ns          208 ns      3485626
+BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_v5<1>, sdsl::select_support_mcl<1>>/7                       212 ns          212 ns      3383426
+BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_scan<1>, sdsl::select_support_mcl<1>>/7                   16142 ns        16132 ns        44918
+BM_successor_bv<sdsl::bit_vector, sdsl::rank_support_scan<1>, sdsl::select_support_scan<1>>/7                  36913 ns        36883 ns        19615
+BM_successor_s9<sdsl::s9_vector<8>, sdsl::rank_support_s9<1,8>, sdsl::select_support_s9<1,8>>/7                  302 ns          301 ns      2494891
+BM_successor_s9<sdsl::s9_vector<16>, sdsl::rank_support_s9<1,16>, sdsl::select_support_s9<1,16>>/7               304 ns          304 ns      2433849
+BM_successor_s9<sdsl::s9_vector<32>, sdsl::rank_support_s9<1,32>, sdsl::select_support_s9<1,32>>/7               319 ns          319 ns      2273847
+BM_successor_s9<sdsl::s9_vector<64>, sdsl::rank_support_s9<1,64>, sdsl::select_support_s9<1,64>>/7               338 ns          337 ns      2139236
+BM_successor_s9<sdsl::s9_vector<128>, sdsl::rank_support_s9<1,128>, sdsl::select_support_s9<1,128>>/7            380 ns          380 ns      1918531
+BM_successor_s9<sdsl::s9_vector<256>, sdsl::rank_support_s9<1,256>, sdsl::select_support_s9<1,256>>/7            457 ns          456 ns      1578737
+BM_successor_s9<sdsl::s9_vector<512>, sdsl::rank_support_s9<1,512>, sdsl::select_support_s9<1,512>>/7            608 ns          608 ns      1183589
+BM_successor_s18<sdsl::s18::vector<1>, sdsl::s18::rank_support<1,1>, sdsl::s18::select_support<1,1>>/7           224 ns          223 ns      3249621
+BM_successor_s18<sdsl::s18::vector<2>, sdsl::s18::rank_support<1,2>, sdsl::s18::select_support<1,2>>/7           244 ns          244 ns      2966476
+BM_successor_s18<sdsl::s18::vector<4>, sdsl::s18::rank_support<1,4>, sdsl::s18::select_support<1,4>>/7           281 ns          281 ns      2544876
+BM_successor_s18<sdsl::s18::vector<8>, sdsl::s18::rank_support<1,8>, sdsl::s18::select_support<1,8>>/7           341 ns          340 ns      2093561
+BM_successor_s18<sdsl::s18::vector<16>, sdsl::s18::rank_support<1,16>, sdsl::s18::select_support<1,16>>/7        446 ns          446 ns      1596685
+BM_successor_s18<sdsl::s18::vector<32>, sdsl::s18::rank_support<1,32>, sdsl::s18::select_support<1,32>>/7        656 ns          655 ns      1071572
+BM_successor_s18<sdsl::s18::vector<64>, sdsl::s18::rank_support<1,64>, sdsl::s18::select_support<1,64>>/7       1036 ns         1035 ns       669652
+BM_successor_rrr<sdsl::rrr_vector<8>, sdsl::rank_support_rrr<1,8>, sdsl::select_support_rrr<1,8>>/7              349 ns          348 ns      2046264
+BM_successor_rrr<sdsl::rrr_vector<16>, sdsl::rank_support_rrr<1,16>, sdsl::select_support_rrr<1,16>>/7           375 ns          375 ns      1913157
+BM_successor_rrr<sdsl::rrr_vector<32>, sdsl::rank_support_rrr<1,32>, sdsl::select_support_rrr<1,32>>/7           384 ns          384 ns      1862031
+BM_successor_rrr<sdsl::rrr_vector<64>, sdsl::rank_support_rrr<1,64>, sdsl::select_support_rrr<1,64>>/7           398 ns          397 ns      1823137
+BM_successor_rrr<sdsl::rrr_vector<128>, sdsl::rank_support_rrr<1,128>, sdsl::select_support_rrr<1,128>>/7        451 ns          451 ns      1614813
+BM_successor_rrr<sdsl::rrr_vector<256>, sdsl::rank_support_rrr<1,256>, sdsl::select_support_rrr<1,256>>/7       1070 ns         1069 ns       678282
+BM_successor_sd<sdsl::sd_vector<>, sdsl::rank_support_sd<1>, sdsl::select_support_sd<1>>/7                       256 ns          256 ns      2847575

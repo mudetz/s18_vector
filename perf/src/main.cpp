@@ -14,13 +14,13 @@ void create_bv(sdsl::bit_vector &bv, unsigned int lambda, unsigned int x, double
 {
 	std::random_device rd;
 	std::uniform_real_distribution<double> rr(0.,1.);
-	std::uniform_int_distribution<size_t> ri(1, x);
-	std::uniform_int_distribution<size_t> rp(0, 2 * lambda - 1);
+	std::poisson_distribution<size_t> ri(x - 1);
+	std::poisson_distribution<size_t> rp(lambda);
 
 	size_t pos = 0;
 	for (size_t i = 0; i < GAPS; i++) {
 		if (rr(rd) < p) {
-			size_t len = ri(rd);
+			size_t len = ri(rd) + 1;
 			for (size_t j = 0; j < len; j++)
 				bv[pos++] = 1;
 		} else {
@@ -36,9 +36,12 @@ void create_bv(sdsl::bit_vector &bv, unsigned int lambda, unsigned int x, double
 sdsl::bit_vector &test_bv(int c)
 {
 	static int const lambda = 127;
-	static int const x = 10000;
+	static int const x = 100;
 	static double const p[] = {0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95};
 	static bool created = false;
+
+	static_assert(x > 1);
+	static_assert(lambda > 1);
 
 	static sdsl::bit_vector bvs[] = {
 		sdsl::bit_vector((lambda + x) * GAPS, 0),
