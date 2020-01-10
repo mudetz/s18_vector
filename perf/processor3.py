@@ -1,7 +1,7 @@
 import re
 import sys
 
-C = 11
+C = 15
 
 files = []
 for CASE in range(C):
@@ -80,6 +80,8 @@ tex_post = r"""            \legend{
     \textsc{%s} para un vector aleatorio con gaps de largo promedio $%s$, runs de largo promedio
     $%s$ con una probabilidad de $%s$.}
 \end{figure}
+\clearpage
+\newpage
 """
 
 labels = [
@@ -117,7 +119,7 @@ idx = {
 
 lambda_ = 127
 x = '100'
-p = (.05, .1, .2, .3, .4, .5, .6, .7, .8, .9, .95)
+p = (.01, .02, .03, .04, .05, .1, .2, .3, .4, .5, .6, .7, .8, .9, .95)
 
 for c in range(C):
     plain_size = files[c][0][0][-2].split('=')[-1]
