@@ -1,20 +1,23 @@
 language: cpp
-sudo: false
 dist: bionic
+os: linux
 
-matrix:
+jobs:
     include:
-        - os: linux
+        - stage: unittest
           compiler: gcc-7
           addons:
               apt:
                   sources:
-                      - kalakris-cmake
                       - ubuntu-toolchain-r-test
                   packages:
                       - cmake
                       - g++-7
           env: CC=gcc-7 CXX=g++-7 STDLIB=libstdc++
+          script:
+              - cd ${TRAVIS_BUILD_DIR}/test
+              - make
+              - ./build/test-suite --reporter compact
 
 install:
     - git clone --depth=1 https://github.com/simongog/sdsl-lite ${TRAVIS_BUILD_DIR}/sdsl/src
@@ -34,21 +37,3 @@ install:
 
 before_script:
     - $CXX --version
-
-jobs:
-    include:
-        - stage: unittest
-          script:
-              - cd ${TRAVIS_BUILD_DIR}/test
-              - make
-              - ./build/test-suite --reporter compact
-
-        - stage: perftest
-          script:
-              - cd ${TRAVIS_BUILD_DIR}/perf
-              - make
-              - sudo bash run_tests.sh
-
-stages:
-    - compile
-    - test
