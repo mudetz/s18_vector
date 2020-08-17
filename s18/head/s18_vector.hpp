@@ -66,18 +66,18 @@ class word
 	private:
 		bool                  already_packed;
 		bool                  processing_lead_1s;
-		uint32_t              leading_1s;
+		uint64_t              leading_1s;
 		std::vector<uint32_t> pending_gaps;
 
-		static size_t const   BIT_PAD[33];
-		static size_t const   BITS_TO_CHUNKS[29];
-		static size_t const   DECODER_CHUNKS[17];
-		static size_t const   DECODER_BITS[17];
+		static uint64_t const BIT_PAD[33];
+		static uint64_t const BITS_TO_CHUNKS[29];
+		static uint64_t const DECODER_CHUNKS[17];
+		static uint64_t const DECODER_BITS[17];
 		static uint32_t const DECODER_MASK[17][14];
 		static uint32_t const DECODER_SHIFT[17][14];
 	public:
 		uint32_t value;
-		size_t   chunk_size;
+		uint64_t chunk_size;
 		word(void)
 			: already_packed(false)
 			, processing_lead_1s(true)
@@ -97,7 +97,7 @@ class word
 		{}
 
 	public:
-		std::tuple<uint32_t, uint32_t, uint32_t> metadata(void) const
+		std::tuple<uint64_t, uint64_t, uint64_t> metadata(void) const
 		{
 			// Return leading 1s, case as int and len w/o leading ones
 			switch (value & MASK_HEADER4) {
@@ -124,7 +124,7 @@ class word
 			}
 		}
 
-		uint32_t access_fast(size_t key, size_t _case) const
+		uint64_t access_fast(uint64_t key, uint64_t _case) const
 		{
 			assert(_case != 15);
 			return (value & DECODER_MASK[_case][key]) >> DECODER_SHIFT[_case][key];
@@ -146,9 +146,9 @@ class word
 			}
 			else if (leading_1s > 28) return false;
 
-			size_t new_pending_size = pending_gaps.size() + 1;
-			size_t gap_size = BIT_PAD[bits::hi(gap) + 1];
-			size_t new_chunk_size = std::max(gap_size, chunk_size);
+			uint64_t new_pending_size = pending_gaps.size() + 1;
+			uint64_t gap_size = BIT_PAD[bits::hi(gap) + 1];
+			uint64_t new_chunk_size = std::max(gap_size, chunk_size);
 			if (new_pending_size * new_chunk_size > 28)
 				return false;
 
@@ -164,7 +164,7 @@ class word
 
 			/* Handler for C16 */
 			if (chunk_size == 1 and leading_1s)
-				return (value = CASE16 | leading_1s);
+				return (value = CASE16 | static_cast<uint32_t>(leading_1s));
 			if (chunk_size == 1 and pending_gaps.size())
 				return (value = CASE16 | static_cast<uint32_t>(pending_gaps.size()));
 
@@ -191,7 +191,7 @@ class word
 		}
 
 #if DEBUG
-		size_t size(void) const {
+		uint64_t size(void) const {
 			switch (value & MASK_HEADER4) {
 				case CASE01: return CHUNKS_CASE01;
 				case CASE02: return CHUNKS_CASE02;
@@ -216,7 +216,7 @@ class word
 			}
 		}
 
-		uint32_t operator[](size_t key) const
+		uint64_t operator[](uint64_t key) const
 		{
 			switch (value & MASK_HEADER4) {
 				case CASE01: return (value & (MASK_CASE01_CHUNK >> (key * BITS_CASE01))) >> (BITS_CASE01 * (CHUNKS_CASE01 - key - 1));
@@ -244,10 +244,10 @@ class word
 #endif
 };
 
-size_t const word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
-size_t const word::BITS_TO_CHUNKS[29] = { 0,28,14,9,7,5,0,4,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
-size_t const word::DECODER_CHUNKS[17] = {1,2,3,4,7,9,14,1,2,3,4,7,9,14,5,0,5};
-size_t const word::DECODER_BITS[17] = {28,14,9,7,4,3,2,28,14,9,7,4,3,2,5,0,5};
+uint64_t const word::BIT_PAD[33] = { 1, 1, 2, 3, 4, 5, 7, 7, 9, 9, 14, 14, 14, 14, 14, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28 };
+uint64_t const word::BITS_TO_CHUNKS[29] = { 0,28,14,9,7,5,0,4,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+uint64_t const word::DECODER_CHUNKS[17] = {1,2,3,4,7,9,14,1,2,3,4,7,9,14,5,0,5};
+uint64_t const word::DECODER_BITS[17] = {28,14,9,7,4,3,2,28,14,9,7,4,3,2,5,0,5};
 uint32_t const word::DECODER_MASK[17][14] = {
 	{MASK_CASE01_CHUNK >> (0 * BITS_CASE01)},
 	{MASK_CASE02_CHUNK >> (0 * BITS_CASE02), MASK_CASE02_CHUNK >> (1 * BITS_CASE02)},
@@ -306,16 +306,16 @@ class vector
 		typedef typename vector_type::size_type      size_type;
 
 	private:
-		size_t         m_ones;        // 1 bits in original sequence
-		size_t         m_size;        // Lenth of original bit vector
-		size_t         s18_seq_size;  // Count of S18 words
+		uint64_t       m_ones;        // 1 bits in original sequence
+		uint64_t       m_size;        // Lenth of original bit vector
+		uint64_t       s18_seq_size;  // Count of S18 words
 		int_vector<32> s18_seq;       // Vector of S18 words
-		int_vector<>   idx_bits;      // Total bits before block
-		int_vector<>   idx_ones;      // Total 1 bits before block
-		int_vector<>   l2_bits;
-		int_vector<>   l2_ones;
-		size_t         l2_bits_div;
-		size_t         l2_ones_div;
+		int_vector<64> idx_bits;      // Total bits before block
+		int_vector<64> idx_ones;      // Total 1 bits before block
+		int_vector<64> l2_bits;
+		int_vector<64> l2_ones;
+		uint64_t       l2_bits_div;
+		uint64_t       l2_ones_div;
 
 	public:
 		/* Default constructor */
@@ -355,31 +355,31 @@ class vector
 			, l2_ones_div(1)
 		{
 			/* Get absolute positions */
-			vector_type absp = vector_type(m_ones, 0);
-			for (size_t i = 0, j = 0; i < m_size; i++)
-				if (bv[i]) absp[j++] = static_cast<uint32_t>(i);
+			int_vector<64> absp = int_vector<64>(m_ones, 0);
+			for (uint64_t i = 0, j = 0; i < m_size; i++)
+				if (bv[i]) absp[j++] = i;
 
 			/* Get gaps from absolute positions */
-			vector_type gaps = vector_type(m_ones, 0);
-			for (size_t i = 1; i < m_ones; i++)
-				gaps[i] = absp[i] - absp[i - 1];
-			gaps[0] = absp[0] + 1;
+			int_vector<32> gaps = int_vector<32>(m_ones, 0);
+			for (uint64_t i = 1; i < m_ones; i++)
+				gaps[i] = static_cast<uint32_t>(absp[i] - absp[i - 1]);
+			gaps[0] = static_cast<uint32_t>(absp[0]) + 1;
 
 			/* Indexes indices */
-			size_t size_idx_bits = 1;
-			size_t size_idx_ones = 1;
+			uint64_t size_idx_bits = 1;
+			uint64_t size_idx_ones = 1;
 
 			/* Encode gaps into s18 words */
-			const_iterator_type gap = gaps.begin();
-			const_iterator_type const begin = gaps.begin();
-			const_iterator_type const end = gaps.end();
+			int_vector<32>::const_iterator gap = gaps.begin();
+			int_vector<32>::const_iterator const begin = gaps.begin();
+			int_vector<32>::const_iterator const end = gaps.end();
 			while (std::distance(gap, end) > 0) {
-				for (size_t i = 0; i < b_s; i++)
+				for (uint64_t i = 0; i < b_s; i++)
 					gap = pack_word(gap, end);
 
-				size_t gaps_encoded = std::distance(begin, gap);
+				uint64_t gaps_encoded = std::distance(begin, gap);
 				idx_bits[size_idx_bits++] = absp[gaps_encoded - 1] + 1;
-				idx_ones[size_idx_ones++] = static_cast<uint32_t>(gaps_encoded);
+				idx_ones[size_idx_ones++] = gaps_encoded;
 			}
 
 			/* Get rid of extra unused space */
@@ -388,49 +388,44 @@ class vector
 			idx_ones.resize(size_idx_ones);
 
 			/* Build L2 index */
-			size_t size_l2 = size_idx_bits;
+			uint64_t size_l2 = size_idx_bits;
 			l2_bits.resize(size_l2);
 			l2_ones.resize(size_l2);
 
 			l2_bits_div = m_size / size_l2 + (m_size % size_l2 != 0);
-			for (size_t i = 0; i < size_l2; i++) {
+			for (uint64_t i = 0; i < size_l2; i++) {
 				auto it = std::upper_bound(idx_bits.begin(), idx_bits.end(), i * l2_bits_div);
-				l2_bits[i] = static_cast<uint32_t>(std::distance(idx_bits.begin(), it));
+				l2_bits[i] = std::distance(idx_bits.begin(), it);
 			}
 
 			l2_ones_div = (m_ones + 1) / size_l2 + ((m_ones + 1) % size_l2 != 0);
-			for (size_t i = 0; i < size_l2; i++) {
+			for (uint64_t i = 0; i < size_l2; i++) {
 				auto it = std::upper_bound(idx_ones.begin(), idx_ones.end(), i * l2_ones_div);
-				l2_ones[i] = static_cast<uint32_t>(std::distance(idx_ones.begin(), it));
+				l2_ones[i] = std::distance(idx_ones.begin(), it);
 			}
-
-			util::bit_compress(idx_bits);
-			util::bit_compress(idx_ones);
-			util::bit_compress(l2_bits);
-			util::bit_compress(l2_ones);
 		} /* end vector::vector */
 
-		size_t size(void) const
+		uint64_t size(void) const
 		{
 			return m_size;
 		}
 
-		uint32_t slow_access(size_t const key) const
+		uint64_t slow_access(uint64_t const key) const
 		{
 			return find_block_nth(
 				s18_seq.begin(),
 				s18_seq.end(),
-				static_cast<uint32_t>(key)
+				key
 			);
 		}
 
-		uint32_t operator[](size_t const key) const
+		uint64_t operator[](uint64_t const key) const
 		{
-			uint32_t pos = static_cast<uint32_t>(l2_bits[key / l2_bits_div] - 1);
+			uint64_t pos = l2_bits[key / l2_bits_div] - 1;
 			return find_block_nth(
 				s18_seq.begin() + pos * b_s,
 				s18_seq.end(),
-				static_cast<uint32_t>(key) - static_cast<uint32_t>(idx_bits[pos])
+				key - idx_bits[pos]
 			);
 		}
 
@@ -439,11 +434,11 @@ class vector
 			return s18_seq;
 		}
 
-		size_t serialize(std::ostream& out, structure_tree_node* v=nullptr, std::string name="") const
+		uint64_t serialize(std::ostream& out, structure_tree_node* v=nullptr, std::string name="") const
 		{
 			structure_tree_node* child = structure_tree::add_child(v, name, util::class_name(*this));
 
-			size_t written_bytes = 0;
+			uint64_t written_bytes = 0;
 			written_bytes += write_member(m_ones, out, child, "m_ones");
 			written_bytes += write_member(m_size, out, child, "m_size");
 			written_bytes += write_member(s18_seq_size, out, child, "s18_seq_size");
@@ -462,10 +457,10 @@ class vector
 		}
 
 	private:
-		uint32_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
+		uint64_t find_block_nth(int_vector<32>::const_iterator const begin, int_vector<32>::const_iterator const end, uint64_t target_accum) const
 		{
-			const_iterator_type gaps = begin;
-			uint32_t accum = -1;
+			int_vector<32>::const_iterator gaps = begin;
+			uint64_t accum = -1;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				word w(*gaps);
@@ -474,8 +469,8 @@ class vector
 				if (leading_1s and (accum += leading_1s) >= target_accum)
 					return 1;
 
-				for (size_t i = 0; i < len; i++) {
-					uint32_t wi = w.access_fast(i, _case);
+				for (uint64_t i = 0; i < len; i++) {
+					uint64_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -487,14 +482,14 @@ class vector
 			return 0;
 		}
 
-		inline const_iterator_type pack_word(const_iterator_type const begin, const_iterator_type const end)
+		inline int_vector<32>::const_iterator pack_word(int_vector<32>::const_iterator const begin, int_vector<32>::const_iterator const end)
 		{
 			/* Early return */
 			if (std::distance(begin, end) <= 0)
 				return begin;
 
 			/* Pointer to gaps */
-			const_iterator_type gaps = begin;
+			int_vector<32>::const_iterator gaps = begin;
 
 			/* Create and pack word */
 			word w = word();
@@ -517,7 +512,7 @@ class access_support
 		access_support(vector<b_s, vector_type> &cv)
 			: bv(cv)
 		{}
-		uint32_t operator()(size_t const key) const { return bv[key]; }
+		uint64_t operator()(uint64_t const key) const { return bv[key]; }
 
 };
 
@@ -532,39 +527,39 @@ class rank_support
 		typedef typename vector_type::const_iterator const_iterator_type;
 
 	private:
-		size_t rank0(size_t const key) const
+		uint64_t rank0(uint64_t const key) const
 		{
 			return key - rank1(key);
 		}
 
-		size_t rank1(size_t const key) const
+		uint64_t rank1(uint64_t const key) const
 		{
-			uint32_t pos = static_cast<uint32_t>(bv.l2_bits[key / bv.l2_bits_div] - 1);
+			uint64_t pos = bv.l2_bits[key / bv.l2_bits_div] - 1;
 			return bv.idx_ones[pos] + find_block_nth(
 				bv.s18_seq.begin() + pos * b_s,
 				bv.s18_seq.end(),
-				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_bits[pos])
+				key - bv.idx_bits[pos]
 			);
 		}
 
-		size_t find_block_nth(const_iterator_type const begin, const_iterator_type const end, uint32_t target_accum) const
+		uint64_t find_block_nth(int_vector<32>::const_iterator const begin, int_vector<32>::const_iterator const end, uint64_t target_accum) const
 		{
-			const_iterator_type gaps = begin;
-			int_fast64_t accum = -1;
-			int_fast64_t one_cnt = 0;
+			int_vector<32>::const_iterator gaps = begin;
+			uint64_t accum = -1;
+			uint64_t one_cnt = 0;
 
 			for (; std::distance(gaps, end) > 0; gaps++) {
 				word w(*gaps);
 				auto const [_case, leading_1s, len] = w.metadata();
 
-				if (accum + leading_1s >= target_accum)
+				if (accum + 1 + leading_1s >= target_accum + 1)
 					return one_cnt + target_accum - accum - 1;
 
 				accum += leading_1s;
 				one_cnt += leading_1s;
 
-				for (size_t i = 0; i < len; i++, one_cnt++) {
-					int_fast32_t wi = w.access_fast(i, _case);
+				for (uint64_t i = 0; i < len; i++, one_cnt++) {
+					uint64_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 
 					accum += wi;
@@ -579,7 +574,7 @@ class rank_support
 		rank_support(vector<b_s, vector_type> &cv)
 			: bv(cv)
 		{}
-		size_t operator()(size_t const key) const
+		uint64_t operator()(uint64_t const key) const
 		{
 			return q ? rank1(key) : rank0(key);
 		}
@@ -596,25 +591,25 @@ class select_support
 		typedef typename vector_type::const_iterator const_iterator_type;
 
 	private:
-		size_t select0(size_t const key) const
+		uint64_t select0(uint64_t const key) const
 		{
 			return key;
 		}
 
-		size_t select1(size_t const key) const
+		uint64_t select1(uint64_t const key) const
 		{
-			uint32_t pos = static_cast<uint32_t>(bv.l2_ones[key / bv.l2_ones_div] - 1);
+			uint64_t pos = bv.l2_ones[key / bv.l2_ones_div] - 1;
 			return bv.idx_bits[pos] + partial_sum(
 				bv.s18_seq.begin() + pos * b_s,
 				bv.s18_seq.end(),
-				static_cast<uint32_t>(key) - static_cast<uint32_t>(bv.idx_ones[pos])
+				key - bv.idx_ones[pos]
 			);
 		}
 
-		size_t partial_sum(const_iterator_type const begin, const_iterator_type const end, uint32_t counter) const
+		uint64_t partial_sum(int_vector<32>::const_iterator const begin, int_vector<32>::const_iterator const end, uint64_t counter) const
 		{
-			const_iterator_type gaps = begin;
-			size_t accum = 0;
+			int_vector<32>::const_iterator gaps = begin;
+			uint64_t accum = 0;
 
 			for (; std::distance(gaps, end) > 0 and counter; gaps++) {
 				word w(*gaps);
@@ -623,8 +618,8 @@ class select_support
 				accum += std::min(counter, leading_1s);
 				counter -= std::min(counter, leading_1s);
 
-				for (size_t i = 0; i < len and counter; i++, counter--) {
-					uint32_t wi = w.access_fast(i, _case);
+				for (uint64_t i = 0; i < len and counter; i++, counter--) {
+					uint64_t wi = w.access_fast(i, _case);
 					if (wi == 0) break; /* Word was not full */
 					accum += wi;
 				}
@@ -641,7 +636,7 @@ class select_support
 		select_support(vector<b_s, vector_type> &cv)
 			: bv(cv)
 		{}
-		size_t operator()(size_t const key) const
+		uint64_t operator()(uint64_t const key) const
 		{
 			return q ? select1(key) : select0(key);
 		}

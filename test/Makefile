@@ -35,7 +35,7 @@ CFLAGS = -O9 -std=gnu++17 -Wall -Weffc++ -Wextra \
 	-Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion \
 	-Wdisabled-optimization -Wfloat-equal -Wformat -Wformat=2 \
 	-Wformat-nonliteral -Wformat-security -Wformat-y2k -Wimport \
-	-Winit-self -Winvalid-pch -Wunsafe-loop-optimizations \
+	-Winit-self -Winvalid-pch \
 	-Wlong-long -Wmissing-braces -Wmissing-field-initializers \
 	-Wmissing-format-attribute -Wmissing-include-dirs -Wmissing-noreturn \
 	-Wpacked -Wno-padded -Wparentheses -Wpointer-arith -Wredundant-decls \
