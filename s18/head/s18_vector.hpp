@@ -310,10 +310,10 @@ class vector
 		uint64_t       m_size;        // Lenth of original bit vector
 		uint64_t       s18_seq_size;  // Count of S18 words
 		int_vector<32> s18_seq;       // Vector of S18 words
-		int_vector<64> idx_bits;      // Total bits before block
-		int_vector<64> idx_ones;      // Total 1 bits before block
-		int_vector<64> l2_bits;
-		int_vector<64> l2_ones;
+		int_vector<>   idx_bits;      // Total bits before block
+		int_vector<>   idx_ones;      // Total 1 bits before block
+		int_vector<>   l2_bits;
+		int_vector<>   l2_ones;
 		uint64_t       l2_bits_div;
 		uint64_t       l2_ones_div;
 
@@ -403,6 +403,11 @@ class vector
 				auto it = std::upper_bound(idx_ones.begin(), idx_ones.end(), i * l2_ones_div);
 				l2_ones[i] = std::distance(idx_ones.begin(), it);
 			}
+
+			util::bit_compress(idx_bits);
+			util::bit_compress(idx_ones);
+			util::bit_compress(l2_bits);
+			util::bit_compress(l2_ones);
 		} /* end vector::vector */
 
 		uint64_t size(void) const
